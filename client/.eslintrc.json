@@ -33,6 +33,7 @@
       }
     ],
     "@typescript-eslint/no-unused-vars": ["warn"],
-    "react/no-unused-prop-types": ["warn"]
+    "react/no-unused-prop-types": ["warn"],
+    "react/prop-types": "off"
   }
 }

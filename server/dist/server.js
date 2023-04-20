@@ -2,9 +2,15 @@ import express from "express";
 import SpotifyWebApi from "spotify-web-api-node";
 import cors from "cors";
 import bodyParser from "body-parser";
+import { config } from "dotenv";
+import { resolve, dirname } from "path";
+import { fileURLToPath } from 'url';
+var __filename = fileURLToPath(import.meta.url);
+var __dirname = dirname(__filename);
+config({ path: resolve(__dirname, "../../keys.env") });
 var client_id = "5e3726a0ec3f4360bf3d47eb34207aa8";
 var redirect_uri = "http://localhost:3000";
-var client_secret = "934c97538367432da6f621021539a4f2";
+var client_secret = process.env.client_secret;
 function createServer() {
     var app = express();
     app.use(cors());
@@ -15,14 +21,14 @@ function createServer() {
             redirectUri: redirect_uri,
             clientId: client_id,
             clientSecret: client_secret,
-            refreshToken: refreshToken
+            refreshToken: refreshToken,
         });
         spotifyApi
             .refreshAccessToken()
             .then(function (data) {
             res.json({
                 accessToken: data.body.access_token,
-                expiresIn: data.body.expires_in
+                expiresIn: data.body.expires_in,
             });
             // Save the access token so that it's used in future calls
             // spotifyApi.setAccessToken(data.body["access_token"]);

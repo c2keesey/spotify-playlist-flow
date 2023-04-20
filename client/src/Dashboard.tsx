@@ -87,7 +87,9 @@ const Dashboard: FC<Props> = ({ authCode }) => {
                 />
               </Col>
               <Col>
-                <Playlist playlist={currentPlaylist} />
+                {currentPlaylist != null && (
+                  <Playlist playlist={currentPlaylist} />
+                )}
               </Col>
               <Col>
                 <h2>Flow</h2>

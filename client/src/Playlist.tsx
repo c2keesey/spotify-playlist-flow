@@ -33,15 +33,15 @@ const Playlist: React.FC<Props> = ({ playlist }) => {
             className="playlist-tracks"
             style={{ maxHeight: "300px", overflowY: "scroll" }}
           >
-            {playlist.tracks.map((track) => (
-              <ListGroup.Item key={track.id}>
-                <div>
-                  <strong>{track.name}</strong>
-                  <p>{track.artists.join(", ")}</p>
-                  <small>{track.album}</small>
-                </div>
-              </ListGroup.Item>
-            ))}
+            {/* {playlist.tracks.map((track) => (
+                <ListGroup.Item key={track.id}>
+                  <div>
+                    <strong>{track.name}</strong>
+                    <p>{track.artists.join(", ")}</p>
+                    <small>{track.album}</small>
+                  </div>
+                </ListGroup.Item>
+              ))} */}
           </ListGroup>
         </Col>
       </Row>

@@ -7,7 +7,7 @@
   "exports": "./dist/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "devStart": "tsc --watch && nodemon",
+    "devStart": "tsc && nodemon",
     "start": "node",
     "build": "tsc --watch"
   },
@@ -21,8 +21,9 @@
     "@types/node": "^18.15.0",
     "@types/spotify-web-api-node": "^5.0.7",
     "body-parser": "^1.20.1",
+    "dotenv": "^16.0.3",
     "express": "^4.18.2",
-    "nodemon": "^2.0.21",
+    "nodemon": "^2.0.22",
     "spotify-web-api-node": "^5.0.2",
     "ts-node": "^10.9.1",
     "typescript": "^4.9.5"
