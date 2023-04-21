@@ -1,0 +1,27 @@
+.track-card-img {
+  width: 80px; /* Adjust the width as desired */
+  height: 80px; /* Adjust the height as desired */
+  object-fit: cover; /* To maintain the aspect ratio */
+  border: 3px solid #1c1e23;
+  box-sizing: border-box;
+  border-radius: 4px;
+  padding: 1px;
+}
+
+.track-name {
+  text-align: left;
+  text-overflow: ellipsis!important;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.image-start {
+    align-items: start !important;
+    display: flex;
+}
+
+.track-card {
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+}

@@ -4,7 +4,7 @@ import cors from "cors";
 import bodyParser from "body-parser";
 import { config } from "dotenv";
 import { resolve, dirname } from "path";
-import { fileURLToPath } from 'url';
+import { fileURLToPath } from "url";
 var __filename = fileURLToPath(import.meta.url);
 var __dirname = dirname(__filename);
 config({ path: resolve(__dirname, "../../keys.env") });
@@ -61,6 +61,5 @@ function createServer() {
     app.listen(3001);
 }
 createServer();
-"";
 export { createServer };
 //# sourceMappingURL=server.js.map

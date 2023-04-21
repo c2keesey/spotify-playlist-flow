@@ -28,6 +28,7 @@ const Dashboard: FC<Props> = ({ authCode }) => {
   const [currentPlaylistTracks, setCurrentPlaylistTracks] = useState<
     SpotifyApi.PlaylistTrackObject[]
   >([]);
+  const [myID, setMyID] = useState<string>("");
 
   const accessToken: string | null = useAuth({ authCode });
 
@@ -37,27 +38,47 @@ const Dashboard: FC<Props> = ({ authCode }) => {
     spotifyApi
       .getMe()
       .then((res) => {
+        setMyID(res.body.id);
         return res.body.id;
       })
       .then((res) => {
-        return spotifyApi.getUserPlaylists(res);
+        return spotifyApi.getUserPlaylists(res).then((playlists) => {
+          return { up: playlists, id: res };
+        });
       })
       .then((res) => {
-        setUserPlaylists(res.body.items);
+        const playlists: SpotifyApi.PlaylistObjectSimplified[] = [];
+        res.up.body.items.forEach((item) => {
+          playlists.push(item);
+        });
+        for (let i = 50; i < res.up.body.total; i += 50) {
+          spotifyApi
+            .getUserPlaylists(res.id, { limit: 50, offset: i })
+            .then((data) => {
+              console.log(data);
+              data.body.items.forEach((item) => {
+                playlists.push(item);
+              });
+            })
+            .catch((err_playlist) => {
+              console.error(err_playlist);
+            });
+        }
+        setUserPlaylists(playlists);
       })
       .catch((err) => {
         console.log(err);
       });
   }, [accessToken]);
 
-  useEffect(() => {
-    // if (!accessToken) return;
-    // if (searchedPlaylist === "") {
-    // }
-    spotifyApi.searchTracks(searchedPlaylist).then((res) => {
-      console.log(res.body);
-    });
-  }, [searchedPlaylist, accessToken]);
+  // useEffect(() => {
+  //   // if (!accessToken) return;
+  //   // if (searchedPlaylist === "") {
+  //   // }
+  //   spotifyApi.searchTracks(searchedPlaylist).then((res) => {
+  //     console.log(res.body);
+  //   });
+  // }, [searchedPlaylist, accessToken]);
 
   useEffect(() => {
     if (currentPlaylistID != null) {
@@ -71,15 +92,12 @@ const Dashboard: FC<Props> = ({ authCode }) => {
   }, [currentPlaylistID]);
 
   return (
-    <Container
-      fluid
-      className="p-3 mb-2 bg-dark text-white h-100 d-flex flex-column"
-    >
+    <Container fluid className="bg-darkdarkslate text-white d-flex flex-column">
       <Row className="flex-grow-1">
         <h1 className="p-3 mb-2 bg-dark-subtle text-center">Playlist Flow</h1>
       </Row>
-      <Row fluid className="text-center flex-grow-1">
-        <Col className="h-100">
+      <Row fluid className="text-center flex-grow-1 ">
+        <Col className="col-3">
           <YourLibrary
             currentPlaylistID={currentPlaylistID}
             setcurrentPlaylistID={setCurrentPlaylistID}
@@ -88,7 +106,7 @@ const Dashboard: FC<Props> = ({ authCode }) => {
             userPlaylists={userPlaylists}
           />
         </Col>
-        <Col>
+        <Col className="col-6">
           {currentPlaylist != null && (
             <Playlist
               playlist={currentPlaylist}
@@ -96,7 +114,7 @@ const Dashboard: FC<Props> = ({ authCode }) => {
             />
           )}
         </Col>
-        <Col>
+        <Col className="col-3">
           <h2>Flow</h2>
         </Col>
       </Row>

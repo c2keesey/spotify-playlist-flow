@@ -20,8 +20,10 @@ const YourLibrary: FC<Props> = ({
   userPlaylists,
 }) => {
   return (
-    <div className="mb-3 full-height">
-      <h2>Your Library</h2>
+    <div className="mb-3">
+      <div className="mb-3">
+        <h2>Your Library</h2>
+      </div>
       <Container className="d-flex flex-column py-3">
         <Form.Control
           type="search"
@@ -30,7 +32,7 @@ const YourLibrary: FC<Props> = ({
           onChange={(e) => setSearchedPlaylist(e.target.value)}
         />
       </Container>
-      <Container className="overflow-auto" style={{ height: "80vh" }}>
+      <Container className="overflow-auto pannel-height">
         <Row xs={1} md={1} className="g-1">
           {userPlaylists == null ? (
             <h3>You have no playlists :&#40;</h3>

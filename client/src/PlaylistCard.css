@@ -1,0 +1,21 @@
+.playlist-image {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  border: 2px solid #1c1e23;
+  border-radius: 4px;
+}
+
+.playlist-card {
+    color: rgb(235, 251, 252);
+}
+
+.active {
+  background-color: rgb(56, 94, 94) !important;
+  --bs-card-border-color: rgb(123, 143, 161) !important;
+}
+
+.non-active {
+  background-color: rgb(28, 49, 49) !important;
+  --bs-card-border-color: rgb(77, 89, 100) !important;
+}

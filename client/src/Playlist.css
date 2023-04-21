@@ -1,0 +1,14 @@
+.p-image {
+    border: 10px rgb(85, 139, 139) !important;
+    border-radius: 5%;
+}
+
+h2 {
+  white-space: nowrap; /* Prevents wrapping */
+  overflow: hidden; /* Hides any overflow */
+  text-overflow: ellipsis; /* Shows ellipsis instead of text that overflows */
+  -webkit-text-size-adjust: none; /* Prevents automatic text resizing in iOS */
+  -moz-text-size-adjust: none; /* Prevents automatic text resizing in Firefox */
+  -ms-text-size-adjust: none; /* Prevents automatic text resizing in IE */
+  text-size-adjust: none; /* Prevents automatic text resizing in other browsers */
+}

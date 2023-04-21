@@ -1,5 +1,6 @@
 import { FC, useState, useEffect } from "react";
 import { Card } from "react-bootstrap";
+import "./PlaylistCard.css";
 
 const DEFAULT_IMG: string =
   "https://via.placeholder.com/1200x1200/424242/FFFFFF/?text=";
@@ -18,12 +19,12 @@ const PlaylistCard: FC<Props> = ({
   const [isActive, setIsActive] = useState(false);
 
   useEffect(() => {
-    if (currentPlaylistID === playlist.name) {
+    if (currentPlaylistID === playlist.id) {
       setIsActive(true);
     } else {
       setIsActive(false);
     }
-  }, [currentPlaylistID, playlist.name]);
+  }, [currentPlaylistID, playlist.id]);
 
   const handleClick: () => void = () => {
     setcurrentPlaylistID(playlist.id);
@@ -31,27 +32,19 @@ const PlaylistCard: FC<Props> = ({
 
   return (
     <Card
-      className={`text-dark text-left flex-row justify-content-between ${
-        isActive ? "active" : ""
+      className={`text-left flex-row justify-content-between align-items-center playlist-card ${
+        isActive ? "active" : "non-active"
       }`}
       onClick={handleClick}
-      style={{
-        textAlign: "left",
-        backgroundColor: isActive ? "grey" : "white",
-      }}
     >
       {playlist.images.length === 0 && (
-        <Card.Img
-          variant="left"
-          src={DEFAULT_IMG}
-          style={{ width: "60px", height: "60px", objectFit: "cover" }}
-        />
+        <Card.Img variant="left" src={DEFAULT_IMG} className="playlist-image" />
       )}
       {playlist.images.length >= 1 && (
         <Card.Img
           variant="left"
           src={playlist.images[0].url}
-          style={{ width: "60px", height: "60px", objectFit: "cover" }}
+          className="playlist-image"
         />
       )}
       <Card.Body className="d-flex justify-content-between">
