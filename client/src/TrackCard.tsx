@@ -1,6 +1,7 @@
 import { FC, useState, useEffect } from "react";
 import { Card, Row, Col } from "react-bootstrap";
 import "./TrackCard.css";
+import { useSpotify } from "./SpotifyContext";
 
 const convertMsToMinSec = (dur: number | undefined) => {
   if (dur === undefined) {
@@ -24,6 +25,8 @@ interface Props {
 const TrackCard: FC<Props> = ({ track }) => {
   const [isActive, setIsActive] = useState(false);
 
+  const { DEFAULT_IMG } = useSpotify();
+
   return (
     <Card
       className={`flex-row align-items-center justify-content-start track-card ${
@@ -34,7 +37,11 @@ const TrackCard: FC<Props> = ({ track }) => {
         <Card.Img
           className="track-card-img"
           variant="left"
-          src={track.track?.album.images[0].url}
+          src={
+            track.track?.album?.images?.[0]?.url === undefined
+              ? DEFAULT_IMG
+              : track.track?.album.images[0].url
+          }
         />
         <div className="d-flex flex-column ml-3">
           <Card.Title>{track.track?.name}</Card.Title>

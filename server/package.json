@@ -7,7 +7,7 @@
   "exports": "./dist/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "devStart": "tsc && nodemon",
+    "devStart": "nodemon",
     "start": "node",
     "build": "tsc --watch"
   },

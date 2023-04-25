@@ -9,7 +9,7 @@ import { fileURLToPath } from "url";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-config({ path: resolve(__dirname, "../../keys.env") });
+config({ path: resolve(__dirname, "../../secret.env") });
 
 const client_id = "5e3726a0ec3f4360bf3d47eb34207aa8";
 const redirect_uri = "http://localhost:3000";

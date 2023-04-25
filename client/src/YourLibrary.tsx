@@ -3,22 +3,19 @@ import { FC, useState } from "react";
 import { Container, Row, Col, Form } from "react-bootstrap";
 import PlaylistCard from "./PlaylistCard";
 import "./App.css";
+import { useSpotify } from "./SpotifyContext";
 
-interface Props {
-  currentPlaylistID: string | null;
-  setcurrentPlaylistID: (playlist: string) => void;
-  searchedPlaylist: string;
-  setSearchedPlaylist: (playlist: string) => void;
-  userPlaylists: SpotifyApi.PlaylistObjectSimplified[] | null;
-}
+interface Props {}
 
-const YourLibrary: FC<Props> = ({
-  currentPlaylistID,
-  setcurrentPlaylistID,
-  searchedPlaylist,
-  setSearchedPlaylist,
-  userPlaylists,
-}) => {
+const YourLibrary: FC<Props> = () => {
+  const {
+    currentPlaylistID,
+    setCurrentPlaylistID,
+    searchedPlaylist,
+    setSearchedPlaylist,
+    userPlaylists,
+  } = useSpotify();
+
   return (
     <div className="mb-3">
       <div className="mb-3">
@@ -39,11 +36,7 @@ const YourLibrary: FC<Props> = ({
           ) : (
             userPlaylists.map((playlist, index) => (
               <Col key={index} className="d-flex flex-column">
-                <PlaylistCard
-                  playlist={playlist}
-                  currentPlaylistID={currentPlaylistID}
-                  setcurrentPlaylistID={setcurrentPlaylistID}
-                />
+                <PlaylistCard playlist={playlist} />
               </Col>
             ))
           )}

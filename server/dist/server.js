@@ -7,7 +7,7 @@ import { resolve, dirname } from "path";
 import { fileURLToPath } from "url";
 var __filename = fileURLToPath(import.meta.url);
 var __dirname = dirname(__filename);
-config({ path: resolve(__dirname, "../../keys.env") });
+config({ path: resolve(__dirname, "../../secret.env") });
 var client_id = "5e3726a0ec3f4360bf3d47eb34207aa8";
 var redirect_uri = "http://localhost:3000";
 var client_secret = process.env.client_secret;

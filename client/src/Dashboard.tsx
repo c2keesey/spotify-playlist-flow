@@ -6,6 +6,7 @@ import YourLibrary from "./YourLibrary";
 import useAuth from "./useAuth";
 import Playlist from "./Playlist";
 import "./App.css";
+import { useSpotify } from "./SpotifyContext";
 
 const spotifyApi = new SpotifyWebApi({
   clientId: "5e3726a0ec3f4360bf3d47eb34207aa8",
@@ -16,19 +17,18 @@ interface Props {
 }
 
 const Dashboard: FC<Props> = ({ authCode }) => {
-  const [currentPlaylistID, setCurrentPlaylistID] = useState<string | null>(
-    null
-  );
-  const [currentPlaylist, setCurrentPlaylist] =
-    useState<SpotifyApi.SinglePlaylistResponse | null>(null);
-  const [searchedPlaylist, setSearchedPlaylist] = useState<string>("");
-  const [userPlaylists, setUserPlaylists] = useState<
-    SpotifyApi.PlaylistObjectSimplified[]
-  >([]);
-  const [currentPlaylistTracks, setCurrentPlaylistTracks] = useState<
-    SpotifyApi.PlaylistTrackObject[]
-  >([]);
-  const [myID, setMyID] = useState<string>("");
+  const {
+    currentPlaylistID,
+    setCurrentPlaylistID,
+    searchedPlaylist,
+    setSearchedPlaylist,
+    userPlaylists,
+    setUserPlaylists,
+    currentPlaylist,
+    setCurrentPlaylist,
+    currentPlaylistTracks,
+    setCurrentPlaylistTracks,
+  } = useSpotify();
 
   const accessToken: string | null = useAuth({ authCode });
 
@@ -38,7 +38,6 @@ const Dashboard: FC<Props> = ({ authCode }) => {
     spotifyApi
       .getMe()
       .then((res) => {
-        setMyID(res.body.id);
         return res.body.id;
       })
       .then((res) => {
@@ -98,21 +97,10 @@ const Dashboard: FC<Props> = ({ authCode }) => {
       </Row>
       <Row fluid className="text-center flex-grow-1 ">
         <Col className="col-3">
-          <YourLibrary
-            currentPlaylistID={currentPlaylistID}
-            setcurrentPlaylistID={setCurrentPlaylistID}
-            searchedPlaylist={searchedPlaylist}
-            setSearchedPlaylist={setSearchedPlaylist}
-            userPlaylists={userPlaylists}
-          />
+          <YourLibrary />
         </Col>
         <Col className="col-6">
-          {currentPlaylist != null && (
-            <Playlist
-              playlist={currentPlaylist}
-              tracks={currentPlaylistTracks}
-            />
-          )}
+          <Playlist />
         </Col>
         <Col className="col-3">
           <h2>Flow</h2>

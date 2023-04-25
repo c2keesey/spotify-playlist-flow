@@ -1,22 +1,19 @@
 import { FC, useState, useEffect } from "react";
 import { Card } from "react-bootstrap";
 import "./PlaylistCard.css";
+import { useSpotify } from "./SpotifyContext";
 
 const DEFAULT_IMG: string =
   "https://via.placeholder.com/1200x1200/424242/FFFFFF/?text=";
 
 interface Props {
   playlist: SpotifyApi.PlaylistObjectSimplified;
-  currentPlaylistID: string | null;
-  setcurrentPlaylistID: (playlist: string) => void;
 }
 
-const PlaylistCard: FC<Props> = ({
-  playlist,
-  currentPlaylistID,
-  setcurrentPlaylistID,
-}) => {
+const PlaylistCard: FC<Props> = ({ playlist }) => {
   const [isActive, setIsActive] = useState(false);
+
+  const { currentPlaylistID, setCurrentPlaylistID } = useSpotify();
 
   useEffect(() => {
     if (currentPlaylistID === playlist.id) {
@@ -27,7 +24,7 @@ const PlaylistCard: FC<Props> = ({
   }, [currentPlaylistID, playlist.id]);
 
   const handleClick: () => void = () => {
-    setcurrentPlaylistID(playlist.id);
+    setCurrentPlaylistID(playlist.id);
   };
 
   return (

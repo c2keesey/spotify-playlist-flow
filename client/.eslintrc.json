@@ -24,7 +24,7 @@
   "rules": {
     "react/jsx-uses-react": ["off"],
     "react/react-in-jsx-scope": ["off"],
-    "linebreak-style": ["error", "unix"],
+    "linebreak-style": ["windows", "error"],
     "react/function-component-definition": [
       "error",
       {
