@@ -9,6 +9,8 @@ export interface Flow {
 interface SpotifyContextData {
   currentPlaylistID: string | null;
   setCurrentPlaylistID: React.Dispatch<React.SetStateAction<string | null>>;
+  userID: string | null;
+  setUserID: React.Dispatch<React.SetStateAction<string | null>>;
   searchedPlaylist: string;
   setSearchedPlaylist: React.Dispatch<React.SetStateAction<string>>;
   userPlaylists: SpotifyApi.PlaylistObjectSimplified[];

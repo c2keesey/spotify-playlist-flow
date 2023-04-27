@@ -5,6 +5,8 @@ import bodyParser from "body-parser";
 import { config } from "dotenv";
 import { resolve, dirname } from "path";
 import { fileURLToPath } from "url";
+import mongoose from "mongoose";
+import dataRoutes from "./dataRoutes.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -19,7 +21,8 @@ function createServer() {
   const app = express();
   app.use(cors());
   app.use(bodyParser.json());
-
+  app.use(bodyParser.urlencoded({ extended: false }));
+  
   app.post("/refresh", (req, res) => {
     const refreshToken = req.body.refreshToken;
     const spotifyApi = new SpotifyWebApi({
@@ -41,6 +44,7 @@ function createServer() {
         // spotifyApi.setAccessToken(data.body["access_token"]);
       })
       .catch(() => {
+        console.log("error");
         res.sendStatus(400);
       });
   });
@@ -68,9 +72,22 @@ function createServer() {
       });
   });
 
+  if (process.env.MONGO_URL != undefined) {
+    mongoose
+      .connect(process.env.MONGO_URL, {
+        useNewUrlParser: true,
+        useUnifiedTopology: true,
+      } as any)
+      .then(() => console.log("database connected"))
+      .catch((err) => console.log(err));
+  }
+
+  app.use("/data", dataRoutes);
+
   app.listen(3001);
 }
 
 createServer();
 
 export { createServer };
+ 

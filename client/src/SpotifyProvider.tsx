@@ -10,6 +10,7 @@ const SpotifyProvider: FC<Props> = ({ children }) => {
   const [currentPlaylistID, setCurrentPlaylistID] = useState<string | null>(
     null
   );
+  const [userID, setUserID] = useState<string | null>(null);
   const [currentPlaylist, setCurrentPlaylist] =
     useState<SpotifyApi.SinglePlaylistResponse | null>(null);
   const [searchedPlaylist, setSearchedPlaylist] = useState<string>("");
@@ -28,6 +29,8 @@ const SpotifyProvider: FC<Props> = ({ children }) => {
     () => ({
       currentPlaylistID,
       setCurrentPlaylistID,
+      userID,
+      setUserID,
       searchedPlaylist,
       setSearchedPlaylist,
       userPlaylists,
@@ -42,6 +45,7 @@ const SpotifyProvider: FC<Props> = ({ children }) => {
     }),
     [
       currentPlaylistID,
+      userID,
       searchedPlaylist,
       userPlaylists,
       currentPlaylist,

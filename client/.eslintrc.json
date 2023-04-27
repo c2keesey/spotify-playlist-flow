@@ -22,9 +22,16 @@
   },
   "plugins": ["react", "@typescript-eslint", "prettier"],
   "rules": {
+    "prettier/prettier": [
+      "error",
+      {
+        "endOfLine": "crlf"
+      }
+    ],
+
     "react/jsx-uses-react": ["off"],
     "react/react-in-jsx-scope": ["off"],
-    "linebreak-style": ["windows", "error"],
+    "linebreak-style": ["error", "windows"],
     "react/function-component-definition": [
       "error",
       {

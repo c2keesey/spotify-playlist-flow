@@ -35,14 +35,21 @@ const Login = () => {
   // };
 
   return (
-    <Container
-      className="d-flex justify-content-center align-items-center"
-      style={{ minHeight: "100vh" }}
+    <div
+      style={{
+        minHeight: "100vh",
+        background: "black",
+        width: "100%",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        height: "100vh",
+      }}
     >
       <a className="btn btn-success btn-lg" href={AUTH_URL}>
         Login with Spotify
       </a>
-    </Container>
+    </div>
   );
 };
 

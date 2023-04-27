@@ -5,6 +5,8 @@ import bodyParser from "body-parser";
 import { config } from "dotenv";
 import { resolve, dirname } from "path";
 import { fileURLToPath } from "url";
+import mongoose from "mongoose";
+import dataRoutes from "./dataRoutes.js";
 var __filename = fileURLToPath(import.meta.url);
 var __dirname = dirname(__filename);
 config({ path: resolve(__dirname, "../../secret.env") });
@@ -15,6 +17,7 @@ function createServer() {
     var app = express();
     app.use(cors());
     app.use(bodyParser.json());
+    app.use(bodyParser.urlencoded({ extended: false }));
     app.post("/refresh", function (req, res) {
         var refreshToken = req.body.refreshToken;
         var spotifyApi = new SpotifyWebApi({
@@ -34,6 +37,7 @@ function createServer() {
             // spotifyApi.setAccessToken(data.body["access_token"]);
         })
             .catch(function () {
+            console.log("error");
             res.sendStatus(400);
         });
     });
@@ -58,6 +62,16 @@ function createServer() {
             res.sendStatus(400);
         });
     });
+    if (process.env.MONGO_URL != undefined) {
+        mongoose
+            .connect(process.env.MONGO_URL, {
+            useNewUrlParser: true,
+            useUnifiedTopology: true,
+        })
+            .then(function () { return console.log("database connected"); })
+            .catch(function (err) { return console.log(err); });
+    }
+    app.use("/data", dataRoutes);
     app.listen(3001);
 }
 createServer();

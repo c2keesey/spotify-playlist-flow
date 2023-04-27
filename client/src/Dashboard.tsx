@@ -7,6 +7,8 @@ import useAuth from "./useAuth";
 import Playlist from "./Playlist";
 import "./App.css";
 import { useSpotify } from "./SpotifyContext";
+import CreateUser from "./CreateUser";
+import Flow from "./Flow";
 
 const spotifyApi = new SpotifyWebApi({
   clientId: "5e3726a0ec3f4360bf3d47eb34207aa8",
@@ -20,6 +22,8 @@ const Dashboard: FC<Props> = ({ authCode }) => {
   const {
     currentPlaylistID,
     setCurrentPlaylistID,
+    userID,
+    setUserID,
     searchedPlaylist,
     setSearchedPlaylist,
     userPlaylists,
@@ -38,6 +42,7 @@ const Dashboard: FC<Props> = ({ authCode }) => {
     spotifyApi
       .getMe()
       .then((res) => {
+        setUserID(res.body.id);
         return res.body.id;
       })
       .then((res) => {
@@ -67,17 +72,11 @@ const Dashboard: FC<Props> = ({ authCode }) => {
       })
       .catch((err) => {
         console.log(err);
+      })
+      .then((res) => {
+        CreateUser();
       });
   }, [accessToken]);
-
-  // useEffect(() => {
-  //   // if (!accessToken) return;
-  //   // if (searchedPlaylist === "") {
-  //   // }
-  //   spotifyApi.searchTracks(searchedPlaylist).then((res) => {
-  //     console.log(res.body);
-  //   });
-  // }, [searchedPlaylist, accessToken]);
 
   useEffect(() => {
     if (currentPlaylistID != null) {
@@ -103,7 +102,7 @@ const Dashboard: FC<Props> = ({ authCode }) => {
           <Playlist />
         </Col>
         <Col className="col-3">
-          <h2>Flow</h2>
+          <Flow />
         </Col>
       </Row>
     </Container>
