@@ -1,5 +1,5 @@
 import { FC, useState, useEffect } from "react";
-import { Card } from "react-bootstrap";
+import { Card, Col, Row } from "react-bootstrap";
 import "./PlaylistCard.css";
 import { useSpotify } from "./SpotifyContext";
 
@@ -29,25 +29,37 @@ const PlaylistCard: FC<Props> = ({ playlist }) => {
 
   return (
     <Card
-      className={`text-left flex-row justify-content-between align-items-center playlist-card ${
+      className={`text-left flex-row justify-content-start align-items-center playlist-card ${
         isActive ? "active" : "non-active"
       }`}
       onClick={handleClick}
     >
-      {playlist.images.length === 0 && (
-        <Card.Img variant="left" src={DEFAULT_IMG} className="playlist-image" />
-      )}
-      {playlist.images.length >= 1 && (
-        <Card.Img
-          variant="left"
-          src={playlist.images[0].url}
-          className="playlist-image"
-        />
-      )}
-      <Card.Body className="d-flex justify-content-between">
-        <Card.Title>{playlist.name}</Card.Title>
+      <Col className="d-flex align-items-start">
+        {playlist.images.length === 0 && (
+          <Card.Img
+            variant="left"
+            src={DEFAULT_IMG}
+            className="playlist-image"
+          />
+        )}
+        {playlist.images.length >= 1 && (
+          <Card.Img
+            variant="left"
+            src={playlist.images[0].url}
+            className="playlist-image"
+          />
+        )}
+      </Col>
+      <Col className="col-1" />
+      <Col className="col-5">
+        <Card.Title className="playlist-name flex-grow-1">
+          {playlist.name}
+        </Card.Title>
+      </Col>
+      <Col className="col-1" />
+      <Col className="col-3">
         <Card.Text>{playlist.tracks.total} Songs</Card.Text>
-      </Card.Body>
+      </Col>
     </Card>
   );
 };

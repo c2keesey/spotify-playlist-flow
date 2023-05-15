@@ -2,27 +2,37 @@ import React, { FC, useState, useEffect } from "react";
 import axios from "axios";
 import { useSpotify } from "./SpotifyContext";
 
-const CreateUser = () => {
+const useCreateUser = () => {
   const { userPlaylists, userID } = useSpotify();
-  let success: boolean = false;
 
-  const userPlaylistIDs = userPlaylists.map(
-    (playlist: SpotifyApi.PlaylistObjectSimplified) => {
-      return playlist.id;
+  useEffect(() => {
+    if (userID) {
+      axios
+        .post("http://localhost:3001/data/createUser", {
+          userID,
+        })
+        .then((res) => {
+          // Handle success here
+        })
+        .catch((err) => {
+          console.log(err);
+        });
     }
-  );
+  }, [userID]);
 
-  axios
-    .post("http://localhost:3001/data/user", {
-      userID,
-      userPlaylistIDs,
-    })
-    .then((res) => {
-      success = true;
-    })
-    .catch((err) => {
-      console.log(err);
-    });
+  useEffect(() => {
+    if (userID) {
+      const userPlaylistIDs: string[] = userPlaylists.map(
+        (playlist: SpotifyApi.PlaylistObjectSimplified) => {
+          return playlist.id;
+        }
+      );
+      axios.post("http://localhost:3001/data/setPlaylists", {
+        userID,
+        userPlaylistIDs,
+      });
+    }
+  }, [userID, userPlaylists]);
 };
 
-export default CreateUser;
+export default useCreateUser;

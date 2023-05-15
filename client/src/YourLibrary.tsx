@@ -31,15 +31,15 @@ const YourLibrary: FC<Props> = () => {
       </Container>
       <Container className="overflow-auto pannel-height">
         <Row xs={1} md={1} className="g-1">
-          {userPlaylists == null ? (
-            <h3>You have no playlists :&#40;</h3>
-          ) : (
-            userPlaylists.map((playlist, index) => (
-              <Col key={index} className="d-flex flex-column">
-                <PlaylistCard playlist={playlist} />
-              </Col>
-            ))
-          )}
+          <Col className="d-flex flex-column">
+            {userPlaylists == null ? (
+              <h3>You have no playlists :&#40;</h3>
+            ) : (
+              userPlaylists.map((playlist) => (
+                <PlaylistCard key={playlist.id} playlist={playlist} />
+              ))
+            )}
+          </Col>
         </Row>
       </Container>
     </div>

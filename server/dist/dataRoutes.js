@@ -58,35 +58,32 @@ var createOrUpdatePlaylist = function (id, userID) { return __awaiter(void 0, vo
         }
     });
 }); };
-dataRoutes.post("/user", function (req, res) {
+dataRoutes.post("/setPlaylists", function (req, res) {
+    Promise.all(req.body.userPlaylistIDs.map(function (id) {
+        return createOrUpdatePlaylist(id, req.body.userID);
+    }))
+        .then(function (res) {
+        console.log("update playlist success");
+    })
+        .catch(function (err) {
+        console.error(err);
+        res.status(500).send({ message: "Error creating playlists" });
+    });
+});
+dataRoutes.post("/createUser", function (req, res) {
     UserModel.find({ userID: req.body.userID })
         .then(function (user) {
-        console.log(user);
         if (user.length === 0) {
             console.log("creating user");
-            var emptyPlaylists_1 = [];
-            Promise.all(req.body.userPlaylistIDs.map(function (id) {
-                return createOrUpdatePlaylist(id, req.body.userID);
-            }))
-                .then(function (playlists) {
-                playlists.forEach(function (playlist) {
-                    emptyPlaylists_1.push(playlist);
-                });
-                UserModel.create({
-                    userID: req.body.userID,
-                    playlists: emptyPlaylists_1,
-                })
-                    .then(function (createdUser) {
-                    res.send(createdUser);
-                })
-                    .catch(function (createUserErr) {
-                    console.error(createUserErr);
-                    res.status(500).send({ message: "Error creating user" });
-                });
+            UserModel.create({
+                userID: req.body.userID,
             })
-                .catch(function (err) {
-                console.error(err);
-                res.status(500).send({ message: "Error creating playlists" });
+                .then(function (createdUser) {
+                res.send(createdUser);
+            })
+                .catch(function (createUserErr) {
+                console.error(createUserErr);
+                res.status(500).send({ message: "Error creating user" });
             });
         }
         else {
@@ -96,6 +93,11 @@ dataRoutes.post("/user", function (req, res) {
         .catch(function (findUserErr) {
         console.error(findUserErr);
         res.status(500).send({ message: "Error finding user" });
+    });
+});
+dataRoutes.get("/getFam", function (req, res) {
+    PlaylistModel.find({ id: req.query.id, owner: req.query.owner }).then(function (fam) {
+        res.send(fam);
     });
 });
 export default dataRoutes;

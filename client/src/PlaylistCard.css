@@ -19,3 +19,11 @@
   background-color: rgb(28, 49, 49) !important;
   --bs-card-border-color: rgb(77, 89, 100) !important;
 }
+
+.playlist-name {
+  text-align: left;
+  text-overflow: ellipsis!important;
+  overflow: hidden;
+  white-space: nowrap;
+  
+}

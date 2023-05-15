@@ -7,7 +7,7 @@ import useAuth from "./useAuth";
 import Playlist from "./Playlist";
 import "./App.css";
 import { useSpotify } from "./SpotifyContext";
-import CreateUser from "./CreateUser";
+import useCreateUser from "./CreateUser";
 import Flow from "./Flow";
 
 const spotifyApi = new SpotifyWebApi({
@@ -72,11 +72,11 @@ const Dashboard: FC<Props> = ({ authCode }) => {
       })
       .catch((err) => {
         console.log(err);
-      })
-      .then((res) => {
-        CreateUser();
       });
-  }, [accessToken]);
+  }, [accessToken, setUserID, setUserPlaylists]);
+
+  // Access Database
+  useCreateUser();
 
   useEffect(() => {
     if (currentPlaylistID != null) {
@@ -87,14 +87,14 @@ const Dashboard: FC<Props> = ({ authCode }) => {
         setCurrentPlaylistTracks(res.body.items);
       });
     }
-  }, [currentPlaylistID]);
+  }, [currentPlaylistID, setCurrentPlaylist, setCurrentPlaylistTracks]);
 
   return (
     <Container fluid className="bg-darkdarkslate text-white d-flex flex-column">
       <Row className="flex-grow-1">
         <h1 className="p-3 mb-2 bg-dark-subtle text-center">Playlist Flow</h1>
       </Row>
-      <Row fluid className="text-center flex-grow-1 ">
+      <Row className="text-center flex-grow-1 ">
         <Col className="col-3">
           <YourLibrary />
         </Col>

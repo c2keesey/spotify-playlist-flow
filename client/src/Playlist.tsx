@@ -47,15 +47,15 @@ const Playlist: React.FC<Props> = () => {
       </Row>
       <Container className="h-100 overflow-auto">
         <Row xs={1} md={1} className="g-1">
-          {currentPlaylistTracks.length === 0 ? (
-            <h3>This playlist is empty :&#40;</h3>
-          ) : (
-            currentPlaylistTracks.map((track) => (
-              <Col className="d-flex flex-column">
-                <TrackCard track={track} />
-              </Col>
-            ))
-          )}
+          <Col className="d-flex flex-column">
+            {currentPlaylistTracks.length === 0 ? (
+              <h3>This playlist is empty :&#40;</h3>
+            ) : (
+              currentPlaylistTracks.map((track) => (
+                <TrackCard key={track.track?.id} track={track} />
+              ))
+            )}
+          </Col>
         </Row>
       </Container>
     </Container>
