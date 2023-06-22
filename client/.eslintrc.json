@@ -23,15 +23,15 @@
   "plugins": ["react", "@typescript-eslint", "prettier"],
   "rules": {
     "prettier/prettier": [
-      "error",
-      {
-        "endOfLine": "crlf"
-      }
+      // "error",
+      // {
+      //   "endOfLine": "crlf"
+      // }
     ],
 
     "react/jsx-uses-react": ["off"],
     "react/react-in-jsx-scope": ["off"],
-    "linebreak-style": ["error", "windows"],
+    "linebreak-style": ["off"], //changed to off
     "react/function-component-definition": [
       "error",
       {

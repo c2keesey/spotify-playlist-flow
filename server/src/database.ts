@@ -5,8 +5,8 @@ const Schema = mongoose.Schema;
 export interface PlaylistSchemaI {
   id: string;
   owner: string;
-  parents: string[];
-  children: string[];
+  upstream: string[];
+  downstream: string[];
 }
 
 export const PlaylistSchema = new Schema({
@@ -19,11 +19,11 @@ export const PlaylistSchema = new Schema({
     type: String,
     required: true,
   },
-  parents: {
+  upstream: {
     type: [String],
     default: [],
   },
-  children: {
+  downstream: {
     type: [String],
     default: [],
   },

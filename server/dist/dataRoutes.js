@@ -95,9 +95,9 @@ dataRoutes.post("/createUser", function (req, res) {
         res.status(500).send({ message: "Error finding user" });
     });
 });
-dataRoutes.get("/getFam", function (req, res) {
-    PlaylistModel.find({ id: req.query.id, owner: req.query.owner }).then(function (fam) {
-        res.send(fam);
+dataRoutes.get("/getFlow", function (req, res) {
+    PlaylistModel.find({ id: req.query.id, owner: req.query.owner }).then(function (flow) {
+        res.send(flow);
     });
 });
 export default dataRoutes;

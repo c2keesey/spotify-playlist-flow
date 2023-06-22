@@ -1,5 +1,5 @@
 /* eslint-disable react/no-array-index-key */
-import { FC, useState } from "react";
+import { FC } from "react";
 import { Container, Row, Col, Form } from "react-bootstrap";
 import PlaylistCard from "./PlaylistCard";
 import "./App.css";
@@ -36,7 +36,7 @@ const YourLibrary: FC<Props> = () => {
               <h3>You have no playlists :&#40;</h3>
             ) : (
               userPlaylists.map((playlist) => (
-                <PlaylistCard key={playlist.id} playlist={playlist} />
+                <PlaylistCard key={playlist.id} playlist={playlist} onClick={setCurrentPlaylistID} selected={currentPlaylistID}/>
               ))
             )}
           </Col>

@@ -1,7 +1,5 @@
 import express from "express";
 import { UserModel, PlaylistModel, PlaylistSchemaI } from "./database.js";
-import mongoose from "mongoose";
-import { PlaylistSchema } from "./database";
 
 const dataRoutes = express.Router();
 
@@ -62,10 +60,10 @@ dataRoutes.post("/createUser", (req, res) => {
     });
 });
 
-dataRoutes.get("/getFam", (req, res) => {
+dataRoutes.get("/getFlow", (req, res) => {
   PlaylistModel.find({ id: req.query.id, owner: req.query.owner }).then(
-    (fam) => {
-      res.send(fam);
+    (flow) => {
+      res.send(flow);
     }
   );
 });

@@ -9,6 +9,8 @@ import "./App.css";
 import { useSpotify } from "./SpotifyContext";
 import useCreateUser from "./CreateUser";
 import Flow from "./Flow";
+import Controls from "./Controls";
+import useGetFlow from "./useGetFlow";
 
 const spotifyApi = new SpotifyWebApi({
   clientId: "5e3726a0ec3f4360bf3d47eb34207aa8",
@@ -21,17 +23,12 @@ interface Props {
 const Dashboard: FC<Props> = ({ authCode }) => {
   const {
     currentPlaylistID,
-    setCurrentPlaylistID,
-    userID,
     setUserID,
-    searchedPlaylist,
-    setSearchedPlaylist,
-    userPlaylists,
     setUserPlaylists,
-    currentPlaylist,
     setCurrentPlaylist,
-    currentPlaylistTracks,
     setCurrentPlaylistTracks,
+    playlistsUpdated,
+    setPlaylistsUpdated,
   } = useSpotify();
 
   const accessToken: string | null = useAuth({ authCode });
@@ -73,7 +70,7 @@ const Dashboard: FC<Props> = ({ authCode }) => {
       .catch((err) => {
         console.log(err);
       });
-  }, [accessToken, setUserID, setUserPlaylists]);
+  }, [accessToken, setUserID, setUserPlaylists, playlistsUpdated]);
 
   // Access Database
   useCreateUser();
@@ -89,6 +86,29 @@ const Dashboard: FC<Props> = ({ authCode }) => {
     }
   }, [currentPlaylistID, setCurrentPlaylist, setCurrentPlaylistTracks]);
 
+  // TODO: update flows properly when new playlist created, change creation of database objects to be on query instead of batched? or finish implementing caching
+  useGetFlow();
+
+  const createPlaylist = (
+    name: string,
+    description: string,
+    isPublic: boolean
+  ) => {
+    setPlaylistsUpdated(name);
+    spotifyApi
+      .createPlaylist(name, {
+        description,
+        public: isPublic,
+        collaborative: false,
+      })
+      .then((response) => {
+        console.log("New playlist created!", response);
+      })
+      .catch((error) => {
+        console.error("Error creating playlist:", error);
+      });
+  };
+
   return (
     <Container fluid className="bg-darkdarkslate text-white d-flex flex-column">
       <Row className="flex-grow-1">
@@ -102,7 +122,12 @@ const Dashboard: FC<Props> = ({ authCode }) => {
           <Playlist />
         </Col>
         <Col className="col-3">
-          <Flow />
+          <Row style={{ height: "60%" }}>
+            <Flow />
+          </Row>
+          <Row style={{ height: "30%" }}>
+            <Controls createPlaylist={createPlaylist} />
+          </Row>
         </Col>
       </Row>
     </Container>

@@ -8,7 +8,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "devStart": "nodemon",
-    "start": "node",
+    "start": "nodemon",
     "build": "tsc --watch"
   },
   "keywords": [],

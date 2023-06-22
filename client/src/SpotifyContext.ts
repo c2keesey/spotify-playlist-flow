@@ -1,9 +1,9 @@
 // SpotifyContext.tsx
 import { createContext, useContext } from "react";
 
-export interface Flow {
-  parents: string[] | null;
-  children: string[] | null;
+export interface FlowInterface {
+  upstream: string[] | null;
+  downstream: string[] | null;
 }
 
 interface SpotifyContextData {
@@ -26,8 +26,14 @@ interface SpotifyContextData {
     React.SetStateAction<SpotifyApi.PlaylistTrackObject[]>
   >;
   DEFAULT_IMG: string;
-  flows: Record<string, Flow>;
-  setFlows: React.Dispatch<React.SetStateAction<Record<string, Flow>>>;
+  flows: Record<string, FlowInterface>;
+  setFlows: React.Dispatch<React.SetStateAction<Record<string, FlowInterface>>>;
+  playlistsUpdated: string | null;
+  setPlaylistsUpdated: React.Dispatch<React.SetStateAction<string | null>>;
+  curUpstream: string[];
+  setCurUpstream: React.Dispatch<React.SetStateAction<string[]>>;
+  curDownstream: string[];
+  setCurDownstream: React.Dispatch<React.SetStateAction<string[]>>;
 }
 
 export const SpotifyContext = createContext<SpotifyContextData | undefined>(

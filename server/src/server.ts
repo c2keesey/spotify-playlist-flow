@@ -22,7 +22,7 @@ function createServer() {
   app.use(cors());
   app.use(bodyParser.json());
   app.use(bodyParser.urlencoded({ extended: false }));
-  
+
   app.post("/refresh", (req, res) => {
     const refreshToken = req.body.refreshToken;
     const spotifyApi = new SpotifyWebApi({
@@ -80,6 +80,21 @@ function createServer() {
       } as any)
       .then(() => console.log("database connected"))
       .catch((err) => console.log(err));
+
+    mongoose.connection.on('connected', () => {
+      console.log('Mongoose is connected');
+    });
+
+    mongoose.connection.on('error', (err) => {
+      console.log(`Mongoose connection error: ${err}`);
+    });
+
+    mongoose.connection.on('disconnected', () => {
+      console.log('Mongoose disconnected');
+    });
+
+  } else {
+    console.log("missing mongoDB url");
   }
 
   app.use("/data", dataRoutes);
@@ -90,4 +105,3 @@ function createServer() {
 createServer();
 
 export { createServer };
- 

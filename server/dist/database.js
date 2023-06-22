@@ -10,11 +10,11 @@ export var PlaylistSchema = new Schema({
         type: String,
         required: true,
     },
-    parents: {
+    upstream: {
         type: [String],
         default: [],
     },
-    children: {
+    downstream: {
         type: [String],
         default: [],
     },

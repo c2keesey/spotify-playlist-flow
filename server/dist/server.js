@@ -70,6 +70,18 @@ function createServer() {
         })
             .then(function () { return console.log("database connected"); })
             .catch(function (err) { return console.log(err); });
+        mongoose.connection.on('connected', function () {
+            console.log('Mongoose is connected');
+        });
+        mongoose.connection.on('error', function (err) {
+            console.log("Mongoose connection error: ".concat(err));
+        });
+        mongoose.connection.on('disconnected', function () {
+            console.log('Mongoose disconnected');
+        });
+    }
+    else {
+        console.log("missing mongoDB url");
     }
     app.use("/data", dataRoutes);
     app.listen(3001);
