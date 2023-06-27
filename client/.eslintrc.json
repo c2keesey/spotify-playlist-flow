@@ -23,10 +23,10 @@
   "plugins": ["react", "@typescript-eslint", "prettier"],
   "rules": {
     "prettier/prettier": [
-      // "error",
-      // {
-      //   "endOfLine": "crlf"
-      // }
+      "error",
+      {
+        "endOfLine": "crlf"
+      }
     ],
 
     "react/jsx-uses-react": ["off"],

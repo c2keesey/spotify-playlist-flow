@@ -34,6 +34,10 @@ interface SpotifyContextData {
   setCurUpstream: React.Dispatch<React.SetStateAction<string[]>>;
   curDownstream: string[];
   setCurDownstream: React.Dispatch<React.SetStateAction<string[]>>;
+  curPlaylistUpdated: boolean;
+  setCurPlaylistUpdated: React.Dispatch<React.SetStateAction<boolean>>;
+  waitingForSync: boolean;
+  setWaitingForSync: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export const SpotifyContext = createContext<SpotifyContextData | undefined>(

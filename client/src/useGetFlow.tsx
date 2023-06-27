@@ -3,8 +3,15 @@ import axios from "axios";
 import { useSpotify } from "./SpotifyContext";
 
 const useGetFlow = () => {
-  const { currentPlaylist, userID, setCurUpstream, setCurDownstream } =
-    useSpotify();
+  const {
+    currentPlaylist,
+    userPlaylists,
+    userID,
+    curPlaylistUpdated,
+    setCurPlaylistUpdated,
+    setCurUpstream,
+    setCurDownstream,
+  } = useSpotify();
 
   useEffect(() => {
     axios
@@ -15,16 +22,33 @@ const useGetFlow = () => {
         },
       })
       .then((res) => {
-        setCurUpstream(res.data[0].upstream);
-        setCurDownstream(res.data[0].downstream);
-        console.log("set flow");
-        console.log(res.data[0].upstream);
-        console.log(res.data[0].downstream);
+        setCurUpstream(
+          res.data[0].upstream
+            .map((id: string) =>
+              userPlaylists.find((playlist) => playlist.id === id)
+            )
+            .filter(Boolean)
+            .map(
+              (playlist: SpotifyApi.PlaylistObjectSimplified) => playlist.name
+            )
+        );
+
+        setCurDownstream(
+          res.data[0].downstream
+            .map((id: string) =>
+              userPlaylists.find((playlist) => playlist.id === id)
+            )
+            .filter(Boolean)
+            .map(
+              (playlist: SpotifyApi.PlaylistObjectSimplified) => playlist.name
+            )
+        );
       })
       .catch((err) => {
         console.error(err);
       });
-  }, [currentPlaylist, userID]);
+    setCurPlaylistUpdated(false);
+  }, [currentPlaylist, userID, curPlaylistUpdated]);
 };
 
 export default useGetFlow;

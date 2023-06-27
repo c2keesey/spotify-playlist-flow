@@ -1,0 +1,18 @@
+.popup {
+  background-color: rgba(127, 229, 255, 0.096);
+}
+
+.teal-modal .modal-content {
+  background-color: rgb(4, 14, 17);
+  color: white;
+}
+
+input[type="text"] {
+  background-color: rgb(28, 49, 49);
+  color: rgb(235, 251, 252);
+}
+
+input[type="text"]:focus {
+  background-color: rgb(56, 94, 94);
+  color: rgb(235, 251, 252);
+}

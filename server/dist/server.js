@@ -13,19 +13,33 @@ config({ path: resolve(__dirname, "../../secret.env") });
 var client_id = "5e3726a0ec3f4360bf3d47eb34207aa8";
 var redirect_uri = "http://localhost:3000";
 var client_secret = process.env.client_secret;
+var spotifyApi = new SpotifyWebApi({
+    redirectUri: redirect_uri,
+    clientId: client_id,
+    clientSecret: client_secret,
+});
 function createServer() {
     var app = express();
     app.use(cors());
     app.use(bodyParser.json());
     app.use(bodyParser.urlencoded({ extended: false }));
+    // For debugging server only
+    app.post("/setToken", function (req, res) {
+        var accessToken = req.body.accessToken;
+        // Validate that accessToken was supplied
+        if (!accessToken) {
+            return res
+                .status(400)
+                .json({ message: "Access token must be supplied." });
+        }
+        // Set the access token
+        spotifyApi.setAccessToken(accessToken);
+        res.status(200).json({ message: "Access token set successfully." });
+        console.log("Access token set successfully.");
+    });
     app.post("/refresh", function (req, res) {
         var refreshToken = req.body.refreshToken;
-        var spotifyApi = new SpotifyWebApi({
-            redirectUri: redirect_uri,
-            clientId: client_id,
-            clientSecret: client_secret,
-            refreshToken: refreshToken,
-        });
+        spotifyApi.setRefreshToken(refreshToken);
         spotifyApi
             .refreshAccessToken()
             .then(function (data) {
@@ -33,8 +47,6 @@ function createServer() {
                 accessToken: data.body.access_token,
                 expiresIn: data.body.expires_in,
             });
-            // Save the access token so that it's used in future calls
-            // spotifyApi.setAccessToken(data.body["access_token"]);
         })
             .catch(function () {
             console.log("error");
@@ -43,11 +55,6 @@ function createServer() {
     });
     app.post("/login", function (req, res) {
         var code = req.body.authCode;
-        var spotifyApi = new SpotifyWebApi({
-            redirectUri: redirect_uri,
-            clientId: client_id,
-            clientSecret: client_secret,
-        });
         spotifyApi
             .authorizationCodeGrant(code)
             .then(function (data) {
@@ -56,6 +63,7 @@ function createServer() {
                 refreshToken: data.body.refresh_token,
                 expiresIn: data.body.expires_in,
             });
+            spotifyApi.setAccessToken(data.body.access_token);
         })
             .catch(function (err) {
             console.log(err);
@@ -70,14 +78,14 @@ function createServer() {
         })
             .then(function () { return console.log("database connected"); })
             .catch(function (err) { return console.log(err); });
-        mongoose.connection.on('connected', function () {
-            console.log('Mongoose is connected');
+        mongoose.connection.on("connected", function () {
+            console.log("Mongoose is connected");
         });
-        mongoose.connection.on('error', function (err) {
+        mongoose.connection.on("error", function (err) {
             console.log("Mongoose connection error: ".concat(err));
         });
-        mongoose.connection.on('disconnected', function () {
-            console.log('Mongoose disconnected');
+        mongoose.connection.on("disconnected", function () {
+            console.log("Mongoose disconnected");
         });
     }
     else {
@@ -87,5 +95,5 @@ function createServer() {
     app.listen(3001);
 }
 createServer();
-export { createServer };
+export { createServer, spotifyApi };
 //# sourceMappingURL=server.js.map

@@ -1,13 +1,16 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Modal, Button, Container, Row, Col } from "react-bootstrap";
 import { useSpotify } from "./SpotifyContext";
 import PlaylistCard from "./PlaylistCard";
+import "./Popup.css";
 
 interface PopupProps {
   isUpstream: boolean;
   showFlowPopup: boolean;
   closeFlowPopup: () => void;
   setShowConfirmation: (show: boolean) => void;
+  targetPlaylist: string | null;
+  setTargetPlaylist: (targetPlaylist: string | null) => void;
 }
 
 const FlowPopup: React.FC<PopupProps> = ({
@@ -15,9 +18,12 @@ const FlowPopup: React.FC<PopupProps> = ({
   showFlowPopup,
   closeFlowPopup,
   setShowConfirmation,
+  targetPlaylist,
+  setTargetPlaylist,
 }) => {
   const [searchText, setSearchText] = useState("");
-  const [selectedPlaylist, setSelectedPlaylist] = useState<string | null>(null);
+  // TODO: set badtarget when detect cycle
+  const [badTarget, setBadTarget] = useState(false);
   const { currentPlaylist, userPlaylists, curUpstream, curDownstream } =
     useSpotify();
 
@@ -26,12 +32,27 @@ const FlowPopup: React.FC<PopupProps> = ({
   };
 
   const handleAddFlowClick = () => {
-    closeFlowPopup();
-    setShowConfirmation(true);
+    if (!badTarget) {
+      closeFlowPopup();
+      setShowConfirmation(true);
+    }
   };
 
+  useEffect(() => {
+    if (currentPlaylist?.id === targetPlaylist) {
+      setBadTarget(true);
+    } else {
+      setBadTarget(false);
+    }
+  }, [targetPlaylist]);
+
   return (
-    <Modal show={showFlowPopup} onHide={closeFlowPopup}>
+    <Modal
+      className="popup teal-modal"
+      show={showFlowPopup}
+      onHide={closeFlowPopup}
+      size="lg"
+    >
       <Modal.Header closeButton>
         <Modal.Title>Flow: {currentPlaylist?.name}</Modal.Title>
       </Modal.Header>
@@ -40,7 +61,7 @@ const FlowPopup: React.FC<PopupProps> = ({
           <div>Upstream Playlists: {curUpstream}</div>
           <div>Downstream Playlists: {curDownstream}</div>
         </Container>
-        <Container className="overflow-auto pannel-height">
+        <Container className="overflow-auto">
           <Row xs={1} md={1} className="g-1">
             <Col className="d-flex flex-column">
               {userPlaylists == null ? (
@@ -50,8 +71,8 @@ const FlowPopup: React.FC<PopupProps> = ({
                   <PlaylistCard
                     key={playlist.id}
                     playlist={playlist}
-                    onClick={setSelectedPlaylist}
-                    selected={selectedPlaylist}
+                    onClick={setTargetPlaylist}
+                    selected={targetPlaylist}
                   />
                 ))
               )}
@@ -60,7 +81,14 @@ const FlowPopup: React.FC<PopupProps> = ({
         </Container>
       </Modal.Body>
       <Modal.Footer>
-        <Button variant="primary" onClick={handleAddFlowClick}>
+        {badTarget && (
+          <p style={{ color: "red" }}>Error: Cannot add self to flow</p>
+        )}
+        <Button
+          variant="primary"
+          disabled={badTarget}
+          onClick={handleAddFlowClick}
+        >
           {isUpstream ? "Add Upstream" : "Add Downstream"}
         </Button>
       </Modal.Footer>

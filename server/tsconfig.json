@@ -99,12 +99,13 @@
     /* Completeness */
     // "skipDefaultLibCheck": true,                      /* Skip type checking .d.ts files that are included with TypeScript. */
     "skipLibCheck": true,
-    "outDir": "./dist",
+    "outDir": "./dist"
   },
   "include": ["src/**/*"],
   "ts-node": {
     "compilerOptions": {
-      "module": "ESNext"
+      "module": "ESNext",
+      "downlevelIteration": true
     }
   },
   "nodemonConfig": {

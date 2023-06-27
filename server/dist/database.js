@@ -1,6 +1,11 @@
 import mongoose from "mongoose";
 var Schema = mongoose.Schema;
+// ids and upstream downstream ids will be the UUID spotify provides and will be referenced as such
 export var PlaylistSchema = new Schema({
+    name: {
+        type: String,
+        required: true,
+    },
     id: {
         type: String,
         required: true,

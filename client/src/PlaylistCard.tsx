@@ -1,7 +1,8 @@
-import { FC, useState, useEffect, Dispatch, SetStateAction } from "react";
+import { FC, useState, useEffect } from "react";
 import { Card, Col, Row } from "react-bootstrap";
 import "./PlaylistCard.css";
 import { useSpotify } from "./SpotifyContext";
+import "./TrackCard.css";
 
 const DEFAULT_IMG: string =
   "https://via.placeholder.com/1200x1200/424242/FFFFFF/?text=";
@@ -12,7 +13,7 @@ interface Props {
   selected: string | null;
 }
 
-const PlaylistCard: FC<Props> = ({ playlist, onClick, selected}) => {
+const PlaylistCard: FC<Props> = ({ playlist, onClick, selected }) => {
   const [isActive, setIsActive] = useState(false);
 
   useEffect(() => {
@@ -29,12 +30,18 @@ const PlaylistCard: FC<Props> = ({ playlist, onClick, selected}) => {
 
   return (
     <Card
-      className={`text-left flex-row justify-content-start align-items-center playlist-card ${
+      className={`flex-row  align-items-center playlist-card ${
         isActive ? "active" : "non-active"
       }`}
+      style={{
+        textAlign: "left",
+        textOverflow: "ellipsis",
+        overflow: "hidden",
+        whiteSpace: "nowrap",
+      }}
       onClick={handleClick}
     >
-      <Col className="d-flex align-items-start">
+      <Col className="d-flex align-items-center">
         {playlist.images.length === 0 && (
           <Card.Img
             variant="left"
@@ -49,16 +56,13 @@ const PlaylistCard: FC<Props> = ({ playlist, onClick, selected}) => {
             className="playlist-image"
           />
         )}
-      </Col>
-      <Col className="col-1" />
-      <Col className="col-5">
-        <Card.Title className="playlist-name flex-grow-1">
-          {playlist.name}
-        </Card.Title>
-      </Col>
-      <Col className="col-1" />
-      <Col className="col-3">
-        <Card.Text>{playlist.tracks.total} Songs</Card.Text>
+        <div
+          className="d-flex flex-column ml-3 playlist-name"
+          style={{ paddingLeft: "5px" }}
+        >
+          <Card.Title className="mb-1">{playlist.name}</Card.Title>
+          <p className="mb-0">{playlist.tracks.total} Songs</p>
+        </div>
       </Col>
     </Card>
   );

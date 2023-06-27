@@ -1,6 +1,6 @@
 /* eslint-disable-next-line */
 import SpotifyWebApi from "spotify-web-api-node";
-import { FC, useState, useEffect } from "react";
+import { FC, useEffect } from "react";
 import { Container, Row, Col } from "react-bootstrap";
 import YourLibrary from "./YourLibrary";
 import useAuth from "./useAuth";
@@ -11,6 +11,7 @@ import useCreateUser from "./CreateUser";
 import Flow from "./Flow";
 import Controls from "./Controls";
 import useGetFlow from "./useGetFlow";
+import SetTokenButton from "./SetTokenButton";
 
 const spotifyApi = new SpotifyWebApi({
   clientId: "5e3726a0ec3f4360bf3d47eb34207aa8",
@@ -29,6 +30,7 @@ const Dashboard: FC<Props> = ({ authCode }) => {
     setCurrentPlaylistTracks,
     playlistsUpdated,
     setPlaylistsUpdated,
+    waitingForSync,
   } = useSpotify();
 
   const accessToken: string | null = useAuth({ authCode });
@@ -66,6 +68,7 @@ const Dashboard: FC<Props> = ({ authCode }) => {
             });
         }
         setUserPlaylists(playlists);
+        console.log("user playlists reset");
       })
       .catch((err) => {
         console.log(err);
@@ -75,6 +78,7 @@ const Dashboard: FC<Props> = ({ authCode }) => {
   // Access Database
   useCreateUser();
 
+  // Get current playlist
   useEffect(() => {
     if (currentPlaylistID != null) {
       spotifyApi.getPlaylist(currentPlaylistID).then((res) => {
@@ -102,6 +106,7 @@ const Dashboard: FC<Props> = ({ authCode }) => {
         collaborative: false,
       })
       .then((response) => {
+        setPlaylistsUpdated(name);
         console.log("New playlist created!", response);
       })
       .catch((error) => {
@@ -111,9 +116,21 @@ const Dashboard: FC<Props> = ({ authCode }) => {
 
   return (
     <Container fluid className="bg-darkdarkslate text-white d-flex flex-column">
-      <Row className="flex-grow-1">
-        <h1 className="p-3 mb-2 bg-dark-subtle text-center">Playlist Flow</h1>
+      <Row className="justify-content-between align-items-center bg-dark-subtle">
+        <Col md={1}>
+          {waitingForSync ? (
+            <span>
+              <span className="spinner-border text-primary" role="status" />
+              <span style={{ marginLeft: 5 }}>Flowing...</span>
+            </span>
+          ) : null}
+        </Col>
+        <Col md={10} className="text-center">
+          <h1>Playlist Flow</h1>
+        </Col>
+        <Col md={1} />
       </Row>
+
       <Row className="text-center flex-grow-1 ">
         <Col className="col-3">
           <YourLibrary />
@@ -127,6 +144,7 @@ const Dashboard: FC<Props> = ({ authCode }) => {
           </Row>
           <Row style={{ height: "30%" }}>
             <Controls createPlaylist={createPlaylist} />
+            <SetTokenButton token={accessToken} />
           </Row>
         </Col>
       </Row>

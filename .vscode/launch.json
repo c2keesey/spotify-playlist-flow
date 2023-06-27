@@ -1,0 +1,35 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Run Client",
+      "type": "pwa-node",
+      "request": "launch",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run-script", "start"],
+      "cwd": "${workspaceFolder}/client"
+    },
+    {
+      "name": "Run Server",
+      "type": "pwa-node",
+      "request": "launch",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run-script", "start"],
+      "cwd": "${workspaceFolder}/server"
+    },
+    {
+      "name": "Compile Server",
+      "type": "pwa-node",
+      "request": "launch",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run-script", "build"],
+      "cwd": "${workspaceFolder}/server"
+    }
+  ],
+  "compounds": [
+    {
+      "name": "Run All",
+      "configurations": ["Run Client", "Run Server", "Compile Server"]
+    }
+  ]
+}

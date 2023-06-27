@@ -1,0 +1,22 @@
+{
+  "folders": [],
+  "launch": {
+    "configurations": [
+      {
+        "name": "Run Client",
+        "type": "shell",
+        "command": "cd client && npm run start"
+      },
+      {
+        "name": "Run Server",
+        "type": "shell",
+        "command": "cd server && npm run start"
+      },
+      {
+        "name": "Compile Server",
+        "type": "shell",
+        "command": "cd server && npm run build"
+      }
+    ]
+  }
+}

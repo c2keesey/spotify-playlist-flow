@@ -25,6 +25,8 @@ const SpotifyProvider: FC<Props> = ({ children }) => {
   const [playlistsUpdated, setPlaylistsUpdated] = useState<string | null>(null);
   const [curUpstream, setCurUpstream] = useState<string[]>([]);
   const [curDownstream, setCurDownstream] = useState<string[]>([]);
+  const [curPlaylistUpdated, setCurPlaylistUpdated] = useState<boolean>(false);
+  const [waitingForSync, setWaitingForSync] = useState<boolean>(false);
 
   const DEFAULT_IMG: string =
     "https://via.placeholder.com/1200x1200/424242/FFFFFF/?text=";
@@ -52,6 +54,10 @@ const SpotifyProvider: FC<Props> = ({ children }) => {
       setCurUpstream,
       curDownstream,
       setCurDownstream,
+      curPlaylistUpdated,
+      setCurPlaylistUpdated,
+      waitingForSync,
+      setWaitingForSync,
     }),
     [
       currentPlaylistID,
@@ -64,6 +70,8 @@ const SpotifyProvider: FC<Props> = ({ children }) => {
       playlistsUpdated,
       curUpstream,
       curDownstream,
+      curPlaylistUpdated,
+      waitingForSync,
     ]
   );
 
