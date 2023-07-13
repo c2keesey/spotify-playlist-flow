@@ -150,26 +150,31 @@ var updatePlaylist = function (playlist) { return __awaiter(void 0, void 0, void
             case 1:
                 tracks = _b.sent();
                 _loop_1 = function (downstreamPlaylist) {
-                    var downstreamTracks, err_2;
+                    var downstreamTracks, tracksLeft, err_2;
                     return __generator(this, function (_c) {
                         switch (_c.label) {
                             case 0: return [4 /*yield*/, getPlaylistTrackURIs(downstreamPlaylist)];
                             case 1:
                                 downstreamTracks = _c.sent();
                                 tracks = tracks.filter(function (track) { return !downstreamTracks.includes(track); });
-                                if (!(tracks.length > 0)) return [3 /*break*/, 5];
+                                tracksLeft = tracks.length;
                                 _c.label = 2;
                             case 2:
-                                _c.trys.push([2, 4, , 5]);
-                                return [4 /*yield*/, spotifyApi.addTracksToPlaylist(downstreamPlaylist, tracks)];
+                                if (!(tracksLeft > 0)) return [3 /*break*/, 7];
+                                _c.label = 3;
                             case 3:
-                                _c.sent();
-                                return [3 /*break*/, 5];
+                                _c.trys.push([3, 5, , 6]);
+                                return [4 /*yield*/, spotifyApi.addTracksToPlaylist(downstreamPlaylist, tracks.slice(tracks.length - tracksLeft, tracksLeft > 100 ? tracks.length - tracksLeft + 100 : undefined))];
                             case 4:
+                                _c.sent();
+                                tracksLeft -= 100;
+                                return [3 /*break*/, 6];
+                            case 5:
                                 err_2 = _c.sent();
                                 console.error("Unable to add tracks to playlist: ".concat(downstreamPlaylist), err_2);
-                                return [3 /*break*/, 5];
-                            case 5: return [2 /*return*/];
+                                return [3 /*break*/, 7];
+                            case 6: return [3 /*break*/, 2];
+                            case 7: return [2 /*return*/];
                         }
                     });
                 };
@@ -250,21 +255,62 @@ dataRoutes.get("/syncPlaylists", function (req, res) {
         res.status(500).send({ message: "Error syncing playlists" });
     });
 });
+function hasCycle(playlists, currentPlaylist, targetPlaylist) {
+    var visited = new Set();
+    function dfs(node) {
+        if (visited.has(node)) {
+            return false;
+        }
+        visited.add(node);
+        if (node === currentPlaylist) {
+            return true;
+        }
+        for (var _i = 0, _a = playlists[node]; _i < _a.length; _i++) {
+            var play = _a[_i];
+            if (dfs(play)) {
+                return true;
+            }
+        }
+        return false;
+    }
+    return dfs(targetPlaylist);
+}
 dataRoutes.post("/addFlow", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var _a, userID, currentPlaylist, targetPlaylist, isUpstream, flowType, filter, update, updateCurrentResult, targetFilter, targetFlowType, targetUpdate, updateTargetResult, error_3;
+    var _a, userID, currentPlaylist, targetPlaylist, isUpstream, allPlaylists_1, userPlaylists, err_3, flowType, filter, update, updateCurrentResult, targetFilter, targetFlowType, targetUpdate, updateTargetResult, error_3;
     var _b, _c;
     return __generator(this, function (_d) {
         switch (_d.label) {
             case 0:
-                _d.trys.push([0, 3, , 4]);
                 _a = req.body, userID = _a.userID, currentPlaylist = _a.currentPlaylist, targetPlaylist = _a.targetPlaylist, isUpstream = _a.isUpstream;
+                _d.label = 1;
+            case 1:
+                _d.trys.push([1, 3, , 4]);
+                allPlaylists_1 = {};
+                return [4 /*yield*/, PlaylistModel.find({ owner: userID })];
+            case 2:
+                userPlaylists = _d.sent();
+                userPlaylists.map(function (playlist) {
+                    allPlaylists_1[playlist.id] = playlist.downstream;
+                });
+                if (hasCycle(allPlaylists_1, !isUpstream ? currentPlaylist : targetPlaylist, !isUpstream ? targetPlaylist : currentPlaylist)) {
+                    res.sendStatus(400);
+                    return [2 /*return*/];
+                }
+                return [3 /*break*/, 4];
+            case 3:
+                err_3 = _d.sent();
+                console.error("Error occurred during adding flow:", err_3);
+                res.status(500).send({ message: "Error adding flow" });
+                return [3 /*break*/, 4];
+            case 4:
+                _d.trys.push([4, 7, , 8]);
                 flowType = isUpstream ? "upstream" : "downstream";
                 filter = { id: currentPlaylist, owner: userID };
                 update = { $addToSet: (_b = {}, _b[flowType] = targetPlaylist, _b) };
                 return [4 /*yield*/, PlaylistModel.findOneAndUpdate(filter, update, {
                         new: true,
                     })];
-            case 1:
+            case 5:
                 updateCurrentResult = _d.sent();
                 targetFilter = { id: targetPlaylist, owner: userID };
                 targetFlowType = !isUpstream ? "upstream" : "downstream";
@@ -272,16 +318,16 @@ dataRoutes.post("/addFlow", function (req, res) { return __awaiter(void 0, void 
                 return [4 /*yield*/, PlaylistModel.findOneAndUpdate(targetFilter, targetUpdate, {
                         new: true,
                     })];
-            case 2:
+            case 6:
                 updateTargetResult = _d.sent();
                 res.send({ current: updateCurrentResult, target: updateTargetResult });
-                return [3 /*break*/, 4];
-            case 3:
+                return [3 /*break*/, 8];
+            case 7:
                 error_3 = _d.sent();
                 console.error("Error occurred during adding flow:", error_3);
                 res.status(500).send({ message: "Error adding flow" });
-                return [3 /*break*/, 4];
-            case 4: return [2 /*return*/];
+                return [3 /*break*/, 8];
+            case 8: return [2 /*return*/];
         }
     });
 }); });

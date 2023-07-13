@@ -70,9 +70,14 @@ const Controls: React.FC<Props> = ({ createPlaylist }) => {
         isUpstream,
       })
       .then((res) => {
-        console.log("Successfully added flow");
-        console.log(res.data);
-        setCurPlaylistUpdated(true);
+        if (res.status === 400) {
+          // TODO: error popup
+          console.log("Error adding flow. Cylce detected.");
+        } else {
+          console.log("Successfully added flow");
+          console.log(res.data);
+          setCurPlaylistUpdated(true);
+        }
       })
       .catch((err) => {
         console.log(err);

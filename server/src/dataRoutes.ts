@@ -113,14 +113,23 @@ const updatePlaylist = async (playlist: PlaylistSchemaI) => {
       downstreamPlaylist
     );
     tracks = tracks.filter((track) => !downstreamTracks.includes(track));
-    if (tracks.length > 0) {
+    let tracksLeft = tracks.length;
+    while (tracksLeft > 0) {
       try {
-        await spotifyApi.addTracksToPlaylist(downstreamPlaylist, tracks);
+        await spotifyApi.addTracksToPlaylist(
+          downstreamPlaylist,
+          tracks.slice(
+            tracks.length - tracksLeft,
+            tracksLeft > 100 ? tracks.length - tracksLeft + 100 : undefined
+          )
+        );
+        tracksLeft -= 100;
       } catch (err) {
         console.error(
           `Unable to add tracks to playlist: ${downstreamPlaylist}`,
           err
         );
+        break;
       }
     }
   }
@@ -167,9 +176,63 @@ dataRoutes.get("/syncPlaylists", (req, res) => {
     });
 });
 
+function hasCycle(
+  playlists: Record<string, string[]>,
+  currentPlaylist: string,
+  targetPlaylist: string
+) {
+  const visited = new Set<string>();
+
+  function dfs(node: string) {
+    if (visited.has(node)) {
+      return false;
+    }
+    visited.add(node);
+    if (node === currentPlaylist) {
+      return true;
+    }
+    for (const play of playlists[node]) {
+      if (dfs(play)) {
+        return true;
+      }
+    }
+    return false;
+  }
+  return dfs(targetPlaylist);
+}
+
 dataRoutes.post("/addFlow", async (req, res) => {
+  interface RequestBody {
+    userID: string;
+    currentPlaylist: string;
+    targetPlaylist: string;
+    isUpstream: boolean;
+  }
+  const { userID, currentPlaylist, targetPlaylist, isUpstream }: RequestBody =
+    req.body;
+  // Check for cycles
   try {
-    const { userID, currentPlaylist, targetPlaylist, isUpstream } = req.body;
+    const allPlaylists: Record<string, string[]> = {};
+    const userPlaylists = await PlaylistModel.find({ owner: userID });
+    userPlaylists.map((playlist) => {
+      allPlaylists[playlist.id] = playlist.downstream;
+    });
+    if (
+      hasCycle(
+        allPlaylists,
+        !isUpstream ? currentPlaylist : targetPlaylist,
+        !isUpstream ? targetPlaylist : currentPlaylist
+      )
+    ) {
+      res.sendStatus(400);
+      return;
+    }
+  } catch (err) {
+    console.error("Error occurred during adding flow:", err);
+    res.status(500).send({ message: "Error adding flow" });
+  }
+
+  try {
     const flowType = isUpstream ? "upstream" : "downstream";
     const filter = { id: currentPlaylist, owner: userID };
 

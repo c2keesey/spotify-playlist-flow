@@ -24,12 +24,16 @@ TODOs:
 
 - automate sync
 
-***- Check for cycles before adding flows
+CHECK ***- Check for cycles before adding flows
 
-**- Add support for adding >100 songs at once
+check **- Add support for adding >100 songs at once
 
 *- playlists to update badge on sync
 
 **- add support for deleted playlists. delete playlist from all flows.
 
 check **- No duplicates
+
+**- keep a cache of flows that have been changed
+
+- checkbox to select flows

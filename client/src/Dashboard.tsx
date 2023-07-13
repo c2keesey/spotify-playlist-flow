@@ -7,11 +7,12 @@ import useAuth from "./useAuth";
 import Playlist from "./Playlist";
 import "./App.css";
 import { useSpotify } from "./SpotifyContext";
-import useCreateUser from "./CreateUser";
+import useCreateUser from "./useCreateUser";
 import Flow from "./Flow";
 import Controls from "./Controls";
 import useGetFlow from "./useGetFlow";
 import SetTokenButton from "./SetTokenButton";
+import "./Dashboard.css";
 
 const spotifyApi = new SpotifyWebApi({
   clientId: "5e3726a0ec3f4360bf3d47eb34207aa8",
@@ -98,7 +99,6 @@ const Dashboard: FC<Props> = ({ authCode }) => {
     description: string,
     isPublic: boolean
   ) => {
-    setPlaylistsUpdated(name);
     spotifyApi
       .createPlaylist(name, {
         description,
@@ -114,6 +114,16 @@ const Dashboard: FC<Props> = ({ authCode }) => {
       });
   };
 
+  const handleClick = async () => {
+    const spinner = document.querySelector(".spinner");
+
+    if (spinner) {
+      spinner.classList.add("solid");
+      await new Promise(() => setTimeout(() => {}, 1000));
+      spinner.classList.remove("solid");
+    }
+  };
+
   return (
     <Container fluid className="bg-darkdarkslate text-white d-flex flex-column">
       <Row className="justify-content-between align-items-center bg-dark-subtle">
@@ -124,6 +134,11 @@ const Dashboard: FC<Props> = ({ authCode }) => {
               <span style={{ marginLeft: 5 }}>Flowing...</span>
             </span>
           ) : null}
+        </Col>
+        <Col>
+          <div className="spinner-container">
+            <div className="spinner" />
+          </div>
         </Col>
         <Col md={10} className="text-center">
           <h1>Playlist Flow</h1>
@@ -145,6 +160,9 @@ const Dashboard: FC<Props> = ({ authCode }) => {
           <Row style={{ height: "30%" }}>
             <Controls createPlaylist={createPlaylist} />
             <SetTokenButton token={accessToken} />
+            <button type="button" onClick={handleClick}>
+              spinner
+            </button>
           </Row>
         </Col>
       </Row>
