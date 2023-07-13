@@ -25,19 +25,32 @@ const createOrUpdatePlaylist = async (
   }
 };
 
-dataRoutes.post("/setPlaylists", (req, res) => {
-  Promise.all(
-    req.body.userPlaylistIDs.map((playlist: { id: string; name: string }) =>
-      createOrUpdatePlaylist(playlist.id, req.body.userID, playlist.name)
-    )
-  )
-    .then((res) => {
-      console.log("update playlist success");
-    })
-    .catch((err) => {
-      console.error(err);
-      res.status(500).send({ message: "Error creating playlists" });
+dataRoutes.post("/setPlaylists", async (req, res) => {
+  try {
+    const playlistIDs = req.body.userPlaylistIDs.map(
+      (playlist: { id: string; name: string }) => playlist.id
+    );
+
+    // Create or update playlists
+    await Promise.all(
+      req.body.userPlaylistIDs.map((playlist: { id: string; name: string }) =>
+        createOrUpdatePlaylist(playlist.id, req.body.userID, playlist.name)
+      )
+    );
+
+    console.log("update playlist success");
+
+    // Remove playlists not in req.body
+    await PlaylistModel.deleteMany({
+      owner: req.body.userID,
+      id: { $nin: playlistIDs },
     });
+
+    res.status(200).send({ message: "Playlists updated successfully" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send({ message: "Error updating playlists" });
+  }
 });
 
 dataRoutes.post("/createUser", (req, res) => {
@@ -201,15 +214,12 @@ function hasCycle(
   return dfs(targetPlaylist);
 }
 
-dataRoutes.post("/addFlow", async (req, res) => {
-  interface RequestBody {
-    userID: string;
-    currentPlaylist: string;
-    targetPlaylist: string;
-    isUpstream: boolean;
-  }
-  const { userID, currentPlaylist, targetPlaylist, isUpstream }: RequestBody =
-    req.body;
+const addSingleFlow = async (
+  userID: string,
+  currentPlaylist: string,
+  targetPlaylist: string,
+  isUpstream: boolean
+) => {
   // Check for cycles
   try {
     const allPlaylists: Record<string, string[]> = {};
@@ -224,12 +234,11 @@ dataRoutes.post("/addFlow", async (req, res) => {
         !isUpstream ? targetPlaylist : currentPlaylist
       )
     ) {
-      res.sendStatus(400);
-      return;
+      return { success: false, status: 400 };
     }
   } catch (err) {
     console.error("Error occurred during adding flow:", err);
-    res.status(500).send({ message: "Error adding flow" });
+    return { success: false, status: 500, message: "Error adding flow" };
   }
 
   try {
@@ -257,11 +266,46 @@ dataRoutes.post("/addFlow", async (req, res) => {
       }
     );
 
-    res.send({ current: updateCurrentResult, target: updateTargetResult });
+    return {
+      success: true,
+      status: 200,
+      current: updateCurrentResult,
+      target: updateTargetResult,
+    };
   } catch (error) {
     console.error("Error occurred during adding flow:", error);
-    res.status(500).send({ message: "Error adding flow" });
+    return { success: false, status: 500, message: "Error adding flow" };
   }
+};
+
+dataRoutes.post("/addFlow", async (req, res) => {
+  interface RequestBody {
+    userID: string;
+    currentPlaylist: string;
+    targetPlaylists: string[];
+    isUpstream: boolean;
+  }
+  const { userID, currentPlaylist, targetPlaylists, isUpstream }: RequestBody =
+    req.body;
+  const results = [];
+  for (const playlist of targetPlaylists) {
+    const result = await addSingleFlow(
+      userID,
+      currentPlaylist,
+      playlist,
+      isUpstream
+    );
+    results.push(result);
+  }
+
+  // Process the results and send the appropriate response
+  for (const result of results) {
+    if (!result.success) {
+      return res.sendStatus(result.status);
+    }
+  }
+  return res.send(results);
 });
+
 
 export default dataRoutes;

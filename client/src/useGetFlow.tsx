@@ -14,10 +14,11 @@ const useGetFlow = () => {
   } = useSpotify();
 
   useEffect(() => {
+    if (!currentPlaylist) return;
     axios
       .get("http://localhost:3001/data/getFlow", {
         params: {
-          id: currentPlaylist?.id,
+          id: currentPlaylist.id,
           owner: userID,
         },
       })
@@ -48,7 +49,7 @@ const useGetFlow = () => {
         console.error(err);
       });
     setCurPlaylistUpdated(false);
-  }, [currentPlaylist, userID, curPlaylistUpdated]);
+  }, [currentPlaylist, curPlaylistUpdated]);
 };
 
 export default useGetFlow;

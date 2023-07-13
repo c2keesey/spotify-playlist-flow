@@ -36,7 +36,13 @@ const YourLibrary: FC<Props> = () => {
               <h3>You have no playlists :&#40;</h3>
             ) : (
               userPlaylists.map((playlist) => (
-                <PlaylistCard key={playlist.id} playlist={playlist} onClick={setCurrentPlaylistID} selected={currentPlaylistID}/>
+                <PlaylistCard
+                  key={playlist.id}
+                  playlist={playlist}
+                  onClick={setCurrentPlaylistID}
+                  selected={currentPlaylistID}
+                  canCheck={false}
+                />
               ))
             )}
           </Col>

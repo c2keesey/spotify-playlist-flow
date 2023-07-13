@@ -51,8 +51,11 @@ const Playlist: React.FC<Props> = () => {
             {currentPlaylistTracks.length === 0 ? (
               <h3>This playlist is empty :&#40;</h3>
             ) : (
-              currentPlaylistTracks.map((track) => (
-                <TrackCard key={track.track?.id} track={track} />
+              currentPlaylistTracks.map((track, index) => (
+                <TrackCard
+                  key={track.track?.id.concat(index.toFixed())}
+                  track={track}
+                />
               ))
             )}
           </Col>

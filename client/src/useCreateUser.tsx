@@ -27,12 +27,16 @@ const useCreateUser = () => {
           return { id: playlist.id, name: playlist.name };
         }
       );
-      axios.post("http://localhost:3001/data/setPlaylists", {
-        userID,
-        userPlaylistIDs,
-      });
+      axios
+        .post("http://localhost:3001/data/setPlaylists", {
+          userID,
+          userPlaylistIDs,
+        })
+        .then((res) => {
+          console.log(res.data.message);
+        });
     }
-  }, [userID, userPlaylists, playlistsUpdated]);
+  }, [playlistsUpdated]);
 };
 
 export default useCreateUser;

@@ -18,22 +18,30 @@ TODOs:
 
 - return proper order of playists in your library by changing promise.all to async op
 
-- change playlistsUpdated state var to be a boolean that is changed everytime a playlist is updated instead of string of name of updated playlist
+check - change playlistsUpdated state var to be a boolean that is changed everytime a playlist is updated instead of string of name of updated playlist
 
 - make flowing graphic cooler
 
 - automate sync
 
-CHECK ***- Check for cycles before adding flows
+CHECK `***- Check for cycles before adding flows
 
 check **- Add support for adding >100 songs at once
 
 *- playlists to update badge on sync
 
-**- add support for deleted playlists. delete playlist from all flows.
+check **- add support for deleted playlists. delete playlist from all flows.
 
 check **- No duplicates
 
 **- keep a cache of flows that have been changed
 
-- checkbox to select flows
+check- checkbox to select flows
+
+check **- separate logic for setting playlists in DB
+
+- remove deleted playlists from upstream/downstream
+
+**- fix sync
+
+*- have floPopup reflect flow and allow deselect

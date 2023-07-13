@@ -59,18 +59,40 @@ var createOrUpdatePlaylist = function (id, userID, name) { return __awaiter(void
         }
     });
 }); };
-dataRoutes.post("/setPlaylists", function (req, res) {
-    Promise.all(req.body.userPlaylistIDs.map(function (playlist) {
-        return createOrUpdatePlaylist(playlist.id, req.body.userID, playlist.name);
-    }))
-        .then(function (res) {
-        console.log("update playlist success");
-    })
-        .catch(function (err) {
-        console.error(err);
-        res.status(500).send({ message: "Error creating playlists" });
+dataRoutes.post("/setPlaylists", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var playlistIDs, err_1;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                _a.trys.push([0, 3, , 4]);
+                playlistIDs = req.body.userPlaylistIDs.map(function (playlist) { return playlist.id; });
+                // Create or update playlists
+                return [4 /*yield*/, Promise.all(req.body.userPlaylistIDs.map(function (playlist) {
+                        return createOrUpdatePlaylist(playlist.id, req.body.userID, playlist.name);
+                    }))];
+            case 1:
+                // Create or update playlists
+                _a.sent();
+                console.log("update playlist success");
+                // Remove playlists not in req.body
+                return [4 /*yield*/, PlaylistModel.deleteMany({
+                        owner: req.body.userID,
+                        id: { $nin: playlistIDs },
+                    })];
+            case 2:
+                // Remove playlists not in req.body
+                _a.sent();
+                res.status(200).send({ message: "Playlists updated successfully" });
+                return [3 /*break*/, 4];
+            case 3:
+                err_1 = _a.sent();
+                console.error(err_1);
+                res.status(500).send({ message: "Error updating playlists" });
+                return [3 /*break*/, 4];
+            case 4: return [2 /*return*/];
+        }
     });
-});
+}); });
 dataRoutes.post("/createUser", function (req, res) {
     UserModel.find({ userID: req.body.userID })
         .then(function (user) {
@@ -102,7 +124,7 @@ dataRoutes.get("/getFlow", function (req, res) {
     });
 });
 var getPlaylistTrackURIs = function (playlistID) { return __awaiter(void 0, void 0, void 0, function () {
-    var fields, limit, offset, hasNextPage, tracks, trackResponse, rawTracks, filteredTracks, err_1;
+    var fields, limit, offset, hasNextPage, tracks, trackResponse, rawTracks, filteredTracks, err_2;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -134,8 +156,8 @@ var getPlaylistTrackURIs = function (playlistID) { return __awaiter(void 0, void
                 offset += limit;
                 return [3 /*break*/, 5];
             case 4:
-                err_1 = _a.sent();
-                console.error("Error getting tracks for playlist: ".concat(playlistID), err_1);
+                err_2 = _a.sent();
+                console.error("Error getting tracks for playlist: ".concat(playlistID), err_2);
                 return [3 /*break*/, 6];
             case 5: return [3 /*break*/, 1];
             case 6: return [2 /*return*/, tracks];
@@ -150,7 +172,7 @@ var updatePlaylist = function (playlist) { return __awaiter(void 0, void 0, void
             case 1:
                 tracks = _b.sent();
                 _loop_1 = function (downstreamPlaylist) {
-                    var downstreamTracks, tracksLeft, err_2;
+                    var downstreamTracks, tracksLeft, err_3;
                     return __generator(this, function (_c) {
                         switch (_c.label) {
                             case 0: return [4 /*yield*/, getPlaylistTrackURIs(downstreamPlaylist)];
@@ -170,8 +192,8 @@ var updatePlaylist = function (playlist) { return __awaiter(void 0, void 0, void
                                 tracksLeft -= 100;
                                 return [3 /*break*/, 6];
                             case 5:
-                                err_2 = _c.sent();
-                                console.error("Unable to add tracks to playlist: ".concat(downstreamPlaylist), err_2);
+                                err_3 = _c.sent();
+                                console.error("Unable to add tracks to playlist: ".concat(downstreamPlaylist), err_3);
                                 return [3 /*break*/, 7];
                             case 6: return [3 /*break*/, 2];
                             case 7: return [2 /*return*/];
@@ -275,59 +297,89 @@ function hasCycle(playlists, currentPlaylist, targetPlaylist) {
     }
     return dfs(targetPlaylist);
 }
-dataRoutes.post("/addFlow", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var _a, userID, currentPlaylist, targetPlaylist, isUpstream, allPlaylists_1, userPlaylists, err_3, flowType, filter, update, updateCurrentResult, targetFilter, targetFlowType, targetUpdate, updateTargetResult, error_3;
-    var _b, _c;
-    return __generator(this, function (_d) {
-        switch (_d.label) {
+var addSingleFlow = function (userID, currentPlaylist, targetPlaylist, isUpstream) { return __awaiter(void 0, void 0, void 0, function () {
+    var allPlaylists_1, userPlaylists, err_4, flowType, filter, update, updateCurrentResult, targetFilter, targetFlowType, targetUpdate, updateTargetResult, error_3;
+    var _a, _b;
+    return __generator(this, function (_c) {
+        switch (_c.label) {
             case 0:
-                _a = req.body, userID = _a.userID, currentPlaylist = _a.currentPlaylist, targetPlaylist = _a.targetPlaylist, isUpstream = _a.isUpstream;
-                _d.label = 1;
-            case 1:
-                _d.trys.push([1, 3, , 4]);
+                _c.trys.push([0, 2, , 3]);
                 allPlaylists_1 = {};
                 return [4 /*yield*/, PlaylistModel.find({ owner: userID })];
-            case 2:
-                userPlaylists = _d.sent();
+            case 1:
+                userPlaylists = _c.sent();
                 userPlaylists.map(function (playlist) {
                     allPlaylists_1[playlist.id] = playlist.downstream;
                 });
                 if (hasCycle(allPlaylists_1, !isUpstream ? currentPlaylist : targetPlaylist, !isUpstream ? targetPlaylist : currentPlaylist)) {
-                    res.sendStatus(400);
-                    return [2 /*return*/];
+                    return [2 /*return*/, { success: false, status: 400 }];
                 }
-                return [3 /*break*/, 4];
+                return [3 /*break*/, 3];
+            case 2:
+                err_4 = _c.sent();
+                console.error("Error occurred during adding flow:", err_4);
+                return [2 /*return*/, { success: false, status: 500, message: "Error adding flow" }];
             case 3:
-                err_3 = _d.sent();
-                console.error("Error occurred during adding flow:", err_3);
-                res.status(500).send({ message: "Error adding flow" });
-                return [3 /*break*/, 4];
-            case 4:
-                _d.trys.push([4, 7, , 8]);
+                _c.trys.push([3, 6, , 7]);
                 flowType = isUpstream ? "upstream" : "downstream";
                 filter = { id: currentPlaylist, owner: userID };
-                update = { $addToSet: (_b = {}, _b[flowType] = targetPlaylist, _b) };
+                update = { $addToSet: (_a = {}, _a[flowType] = targetPlaylist, _a) };
                 return [4 /*yield*/, PlaylistModel.findOneAndUpdate(filter, update, {
                         new: true,
                     })];
-            case 5:
-                updateCurrentResult = _d.sent();
+            case 4:
+                updateCurrentResult = _c.sent();
                 targetFilter = { id: targetPlaylist, owner: userID };
                 targetFlowType = !isUpstream ? "upstream" : "downstream";
-                targetUpdate = { $addToSet: (_c = {}, _c[targetFlowType] = currentPlaylist, _c) };
+                targetUpdate = { $addToSet: (_b = {}, _b[targetFlowType] = currentPlaylist, _b) };
                 return [4 /*yield*/, PlaylistModel.findOneAndUpdate(targetFilter, targetUpdate, {
                         new: true,
                     })];
+            case 5:
+                updateTargetResult = _c.sent();
+                return [2 /*return*/, {
+                        success: true,
+                        status: 200,
+                        current: updateCurrentResult,
+                        target: updateTargetResult,
+                    }];
             case 6:
-                updateTargetResult = _d.sent();
-                res.send({ current: updateCurrentResult, target: updateTargetResult });
-                return [3 /*break*/, 8];
-            case 7:
-                error_3 = _d.sent();
+                error_3 = _c.sent();
                 console.error("Error occurred during adding flow:", error_3);
-                res.status(500).send({ message: "Error adding flow" });
-                return [3 /*break*/, 8];
-            case 8: return [2 /*return*/];
+                return [2 /*return*/, { success: false, status: 500, message: "Error adding flow" }];
+            case 7: return [2 /*return*/];
+        }
+    });
+}); };
+dataRoutes.post("/addFlow", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var _a, userID, currentPlaylist, targetPlaylists, isUpstream, results, _i, targetPlaylists_1, playlist, result, _b, results_1, result;
+    return __generator(this, function (_c) {
+        switch (_c.label) {
+            case 0:
+                _a = req.body, userID = _a.userID, currentPlaylist = _a.currentPlaylist, targetPlaylists = _a.targetPlaylists, isUpstream = _a.isUpstream;
+                results = [];
+                _i = 0, targetPlaylists_1 = targetPlaylists;
+                _c.label = 1;
+            case 1:
+                if (!(_i < targetPlaylists_1.length)) return [3 /*break*/, 4];
+                playlist = targetPlaylists_1[_i];
+                return [4 /*yield*/, addSingleFlow(userID, currentPlaylist, playlist, isUpstream)];
+            case 2:
+                result = _c.sent();
+                results.push(result);
+                _c.label = 3;
+            case 3:
+                _i++;
+                return [3 /*break*/, 1];
+            case 4:
+                // Process the results and send the appropriate response
+                for (_b = 0, results_1 = results; _b < results_1.length; _b++) {
+                    result = results_1[_b];
+                    if (!result.success) {
+                        return [2 /*return*/, res.sendStatus(result.status)];
+                    }
+                }
+                return [2 /*return*/, res.send(results)];
         }
     });
 }); });

@@ -9,8 +9,7 @@ interface PopupProps {
   showFlowPopup: boolean;
   closeFlowPopup: () => void;
   setShowConfirmation: (show: boolean) => void;
-  targetPlaylist: string | null;
-  setTargetPlaylist: (targetPlaylist: string | null) => void;
+  handleCheckPlaylist: (playlist: string) => void;
 }
 
 const FlowPopup: React.FC<PopupProps> = ({
@@ -18,8 +17,7 @@ const FlowPopup: React.FC<PopupProps> = ({
   showFlowPopup,
   closeFlowPopup,
   setShowConfirmation,
-  targetPlaylist,
-  setTargetPlaylist,
+  handleCheckPlaylist,
 }) => {
   const [searchText, setSearchText] = useState("");
   // TODO: set badtarget when detect cycle
@@ -71,8 +69,9 @@ const FlowPopup: React.FC<PopupProps> = ({
                   <PlaylistCard
                     key={playlist.id}
                     playlist={playlist}
-                    onClick={setTargetPlaylist}
-                    selected={targetPlaylist}
+                    onClick={handleCheckPlaylist}
+                    selected={null}
+                    canCheck
                   />
                 ))
               )}

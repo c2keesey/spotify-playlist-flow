@@ -1,6 +1,6 @@
 /* eslint-disable-next-line */
 import SpotifyWebApi from "spotify-web-api-node";
-import { FC, useEffect } from "react";
+import { FC, useEffect, useState } from "react";
 import { Container, Row, Col } from "react-bootstrap";
 import YourLibrary from "./YourLibrary";
 import useAuth from "./useAuth";
@@ -25,6 +25,7 @@ interface Props {
 const Dashboard: FC<Props> = ({ authCode }) => {
   const {
     currentPlaylistID,
+    userID,
     setUserID,
     setUserPlaylists,
     setCurrentPlaylist,
@@ -34,30 +35,22 @@ const Dashboard: FC<Props> = ({ authCode }) => {
     waitingForSync,
   } = useSpotify();
 
+  const [playlistCreated, setPlaylistCreated] = useState(false);
+
   const accessToken: string | null = useAuth({ authCode });
 
   useEffect(() => {
-    if (!accessToken) return;
-    spotifyApi.setAccessToken(accessToken);
+    if (!userID) return;
     spotifyApi
-      .getMe()
-      .then((res) => {
-        setUserID(res.body.id);
-        return res.body.id;
-      })
-      .then((res) => {
-        return spotifyApi.getUserPlaylists(res).then((playlists) => {
-          return { up: playlists, id: res };
-        });
-      })
+      .getUserPlaylists(userID)
       .then((res) => {
         const playlists: SpotifyApi.PlaylistObjectSimplified[] = [];
-        res.up.body.items.forEach((item) => {
+        res.body.items.forEach((item) => {
           playlists.push(item);
         });
-        for (let i = 50; i < res.up.body.total; i += 50) {
+        for (let i = 50; i < res.body.total; i += 50) {
           spotifyApi
-            .getUserPlaylists(res.id, { limit: 50, offset: i })
+            .getUserPlaylists(userID, { limit: 50, offset: i })
             .then((data) => {
               console.log(data);
               data.body.items.forEach((item) => {
@@ -69,12 +62,27 @@ const Dashboard: FC<Props> = ({ authCode }) => {
             });
         }
         setUserPlaylists(playlists);
+        setPlaylistsUpdated(!playlistsUpdated);
         console.log("user playlists reset");
       })
       .catch((err) => {
         console.log(err);
       });
-  }, [accessToken, setUserID, setUserPlaylists, playlistsUpdated]);
+  }, [userID, playlistCreated]);
+
+  useEffect(() => {
+    if (!accessToken) return;
+    spotifyApi.setAccessToken(accessToken);
+    spotifyApi
+      .getMe()
+      .then((res) => {
+        setUserID(res.body.id);
+        console.log("user reset");
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }, [accessToken, setUserID, setUserPlaylists]);
 
   // Access Database
   useCreateUser();
@@ -106,22 +114,12 @@ const Dashboard: FC<Props> = ({ authCode }) => {
         collaborative: false,
       })
       .then((response) => {
-        setPlaylistsUpdated(name);
+        setPlaylistCreated(!playlistCreated);
         console.log("New playlist created!", response);
       })
       .catch((error) => {
         console.error("Error creating playlist:", error);
       });
-  };
-
-  const handleClick = async () => {
-    const spinner = document.querySelector(".spinner");
-
-    if (spinner) {
-      spinner.classList.add("solid");
-      await new Promise(() => setTimeout(() => {}, 1000));
-      spinner.classList.remove("solid");
-    }
   };
 
   return (
@@ -134,11 +132,6 @@ const Dashboard: FC<Props> = ({ authCode }) => {
               <span style={{ marginLeft: 5 }}>Flowing...</span>
             </span>
           ) : null}
-        </Col>
-        <Col>
-          <div className="spinner-container">
-            <div className="spinner" />
-          </div>
         </Col>
         <Col md={10} className="text-center">
           <h1>Playlist Flow</h1>
@@ -159,10 +152,6 @@ const Dashboard: FC<Props> = ({ authCode }) => {
           </Row>
           <Row style={{ height: "30%" }}>
             <Controls createPlaylist={createPlaylist} />
-            <SetTokenButton token={accessToken} />
-            <button type="button" onClick={handleClick}>
-              spinner
-            </button>
           </Row>
         </Col>
       </Row>

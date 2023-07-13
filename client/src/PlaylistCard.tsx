@@ -1,7 +1,6 @@
 import { FC, useState, useEffect } from "react";
-import { Card, Col, Row } from "react-bootstrap";
+import { Card, Col, Form } from "react-bootstrap";
 import "./PlaylistCard.css";
-import { useSpotify } from "./SpotifyContext";
 import "./TrackCard.css";
 
 const DEFAULT_IMG: string =
@@ -11,22 +10,30 @@ interface Props {
   playlist: SpotifyApi.PlaylistObjectSimplified;
   onClick: (playlist: string) => void | null;
   selected: string | null;
+  canCheck: boolean;
 }
 
-const PlaylistCard: FC<Props> = ({ playlist, onClick, selected }) => {
+const PlaylistCard: FC<Props> = ({ playlist, onClick, selected, canCheck }) => {
   const [isActive, setIsActive] = useState(false);
 
   useEffect(() => {
-    if (selected === playlist.id) {
-      setIsActive(true);
-    } else {
-      setIsActive(false);
+    if (!canCheck) {
+      if (selected === playlist.id) {
+        setIsActive(true);
+      } else {
+        setIsActive(false);
+      }
     }
   }, [selected, playlist.id]);
 
   const handleClick: () => void = () => {
+    if (canCheck) {
+      setIsActive(!isActive);
+    }
     onClick(playlist.id);
   };
+
+  const handleCheck: () => void = () => {};
 
   return (
     <Card
@@ -64,6 +71,15 @@ const PlaylistCard: FC<Props> = ({ playlist, onClick, selected }) => {
           <p className="mb-0">{playlist.tracks.total} Songs</p>
         </div>
       </Col>
+      {canCheck ? (
+        <Form.Check
+          type="checkbox"
+          className="ml-auto"
+          style={{ paddingRight: "20px" }}
+          checked={isActive}
+          onChange={handleCheck}
+        />
+      ) : null}
     </Card>
   );
 };
