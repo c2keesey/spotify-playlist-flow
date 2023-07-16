@@ -23,7 +23,7 @@
   "plugins": ["react", "@typescript-eslint", "prettier"],
   "rules": {
     "prettier/prettier": [
-      "error",
+      "off",
       {
         "endOfLine": "crlf"
       }
