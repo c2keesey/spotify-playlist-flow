@@ -9,3 +9,5 @@ This app is designed to allow you to create heirarchies of playlists such that s
 curated playlists while also having larger playlists comprised of your smaller ones.
 
 This is my first web app and very much a work in progress, so beware of bugs.
+
+[![Netlify Status](https://api.netlify.com/api/v1/badges/7990bb92-a37c-431e-9d1f-704c9d3a23e9/deploy-status)](https://app.netlify.com/sites/spotify-playlist-flow/deploys)
