@@ -15,7 +15,7 @@
       {
         "name": "Compile Server",
         "type": "shell",
-        "command": "cd server && npm run build"
+        "command": "cd server && npm run buildWatch"
       }
     ]
   }

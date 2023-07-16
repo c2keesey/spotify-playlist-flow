@@ -120,20 +120,23 @@ const getPlaylistTrackURIs = async (playlistID: string) => {
 
 const updatePlaylist = async (playlist: PlaylistSchemaI) => {
   let tracks: string[] = await getPlaylistTrackURIs(playlist.id);
-
   for (const downstreamPlaylist of playlist.downstream) {
     const downstreamTracks: string[] = await getPlaylistTrackURIs(
       downstreamPlaylist
     );
-    tracks = tracks.filter((track) => !downstreamTracks.includes(track));
-    let tracksLeft = tracks.length;
+    let filteredTracks = tracks.filter(
+      (track) => !downstreamTracks.includes(track)
+    );
+    let tracksLeft = filteredTracks.length;
     while (tracksLeft > 0) {
       try {
         await spotifyApi.addTracksToPlaylist(
           downstreamPlaylist,
-          tracks.slice(
-            tracks.length - tracksLeft,
-            tracksLeft > 100 ? tracks.length - tracksLeft + 100 : undefined
+          filteredTracks.slice(
+            filteredTracks.length - tracksLeft,
+            tracksLeft > 100
+              ? filteredTracks.length - tracksLeft + 100
+              : undefined
           )
         );
         tracksLeft -= 100;
@@ -153,7 +156,7 @@ const updatePlaylist = async (playlist: PlaylistSchemaI) => {
 dataRoutes.get("/syncPlaylists", (req, res) => {
   const { owner } = req.query;
 
-  PlaylistModel.find({ owner: owner })
+  PlaylistModel.find({ owner: owner, changed: true })
     .then(async (playlists: PlaylistSchemaI[]) => {
       let nextUpdateBatch = playlists.filter(
         (playlist) =>
@@ -245,7 +248,10 @@ const addSingleFlow = async (
     const flowType = isUpstream ? "upstream" : "downstream";
     const filter = { id: currentPlaylist, owner: userID };
 
-    const update = { $addToSet: { [flowType]: targetPlaylist } };
+    const update = {
+      $addToSet: { [flowType]: targetPlaylist },
+      ...(isUpstream ? {} : { $set: { changed: true } }),
+    };
 
     const updateCurrentResult = await PlaylistModel.findOneAndUpdate(
       filter,
@@ -256,7 +262,10 @@ const addSingleFlow = async (
     );
     const targetFilter = { id: targetPlaylist, owner: userID };
     const targetFlowType = !isUpstream ? "upstream" : "downstream";
-    const targetUpdate = { $addToSet: { [targetFlowType]: currentPlaylist } };
+    const targetUpdate = {
+      $addToSet: { [targetFlowType]: currentPlaylist },
+      ...(isUpstream ? { $set: { changed: true } } : {}),
+    };
 
     const updateTargetResult = await PlaylistModel.findOneAndUpdate(
       targetFilter,
@@ -297,8 +306,6 @@ dataRoutes.post("/addFlow", async (req, res) => {
     );
     results.push(result);
   }
-
-  // Process the results and send the appropriate response
   for (const result of results) {
     if (!result.success) {
       return res.sendStatus(result.status);
@@ -306,6 +313,5 @@ dataRoutes.post("/addFlow", async (req, res) => {
   }
   return res.send(results);
 });
-
 
 export default dataRoutes;

@@ -30,15 +30,16 @@ const Dashboard: FC<Props> = ({ authCode }) => {
     setUserPlaylists,
     setCurrentPlaylist,
     setCurrentPlaylistTracks,
+    playlistsChanged,
+    setPlaylistsChanged,
+    waitingForSync,
     playlistsUpdated,
     setPlaylistsUpdated,
-    waitingForSync,
   } = useSpotify();
-
-  const [playlistCreated, setPlaylistCreated] = useState(false);
 
   const accessToken: string | null = useAuth({ authCode });
 
+  // TODO: update only if playlists are changed
   useEffect(() => {
     if (!userID) return;
     spotifyApi
@@ -68,7 +69,7 @@ const Dashboard: FC<Props> = ({ authCode }) => {
       .catch((err) => {
         console.log(err);
       });
-  }, [userID, playlistCreated]);
+  }, [userID, playlistsChanged]);
 
   useEffect(() => {
     if (!accessToken) return;
@@ -97,7 +98,7 @@ const Dashboard: FC<Props> = ({ authCode }) => {
         setCurrentPlaylistTracks(res.body.items);
       });
     }
-  }, [currentPlaylistID, setCurrentPlaylist, setCurrentPlaylistTracks]);
+  }, [currentPlaylistID, playlistsUpdated]);
 
   // TODO: update flows properly when new playlist created, change creation of database objects to be on query instead of batched? or finish implementing caching
   useGetFlow();
@@ -114,7 +115,7 @@ const Dashboard: FC<Props> = ({ authCode }) => {
         collaborative: false,
       })
       .then((response) => {
-        setPlaylistCreated(!playlistCreated);
+        setPlaylistsChanged(!playlistsChanged);
         console.log("New playlist created!", response);
       })
       .catch((error) => {
@@ -139,18 +140,18 @@ const Dashboard: FC<Props> = ({ authCode }) => {
         <Col md={1} />
       </Row>
 
-      <Row className="text-center flex-grow-1 ">
+      <Row className="text-center flex-grow-1 p-3">
         <Col className="col-3">
           <YourLibrary />
         </Col>
         <Col className="col-6">
           <Playlist />
         </Col>
-        <Col className="col-3">
+        <Col className="col-3 p-3">
           <Row style={{ height: "60%" }}>
             <Flow />
           </Row>
-          <Row style={{ height: "30%" }}>
+          <Row className="p-3" style={{ height: "30%" }}>
             <Controls createPlaylist={createPlaylist} />
           </Row>
         </Col>

@@ -19,8 +19,8 @@ const Controls: React.FC<Props> = ({ createPlaylist }) => {
     currentPlaylist,
     userID,
     setCurPlaylistUpdated,
-    setPlaylistsUpdated,
-    playlistsUpdated,
+    setPlaylistsChanged,
+    playlistsChanged,
     setWaitingForSync,
     waitingForSync,
   } = useSpotify();
@@ -111,10 +111,7 @@ const Controls: React.FC<Props> = ({ createPlaylist }) => {
       })
       .then((resp) => {
         // create success popup
-        console.log(resp);
-        console.log(playlistsUpdated);
-        setPlaylistsUpdated(!playlistsUpdated);
-        console.log(playlistsUpdated);
+        setPlaylistsChanged(!playlistsChanged);
         setWaitingForSync(false);
       })
       .catch((error) => {

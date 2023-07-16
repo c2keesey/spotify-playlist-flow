@@ -9,7 +9,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "devStart": "nodemon",
     "start": "nodemon",
-    "build": "tsc --watch"
+    "build": "tsc",
+    "buildWatch": "tsc --watch"
   },
   "keywords": [],
   "author": "",

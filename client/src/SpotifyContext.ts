@@ -28,6 +28,8 @@ interface SpotifyContextData {
   DEFAULT_IMG: string;
   flows: Record<string, FlowInterface>;
   setFlows: React.Dispatch<React.SetStateAction<Record<string, FlowInterface>>>;
+  playlistsChanged: boolean;
+  setPlaylistsChanged: React.Dispatch<React.SetStateAction<boolean>>;
   playlistsUpdated: boolean;
   setPlaylistsUpdated: React.Dispatch<React.SetStateAction<boolean>>;
   curUpstream: string[];

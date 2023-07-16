@@ -22,6 +22,7 @@ const SpotifyProvider: FC<Props> = ({ children }) => {
   >([]);
   // TODO: for implementing caching
   const [flows, setFlows] = useState<Record<string, FlowInterface>>({});
+  const [playlistsChanged, setPlaylistsChanged] = useState<boolean>(false);
   const [playlistsUpdated, setPlaylistsUpdated] = useState<boolean>(false);
   const [curUpstream, setCurUpstream] = useState<string[]>([]);
   const [curDownstream, setCurDownstream] = useState<string[]>([]);
@@ -48,8 +49,8 @@ const SpotifyProvider: FC<Props> = ({ children }) => {
       DEFAULT_IMG,
       flows,
       setFlows,
-      playlistsUpdated,
-      setPlaylistsUpdated,
+      playlistsChanged,
+      setPlaylistsChanged,
       curUpstream,
       setCurUpstream,
       curDownstream,
@@ -58,6 +59,8 @@ const SpotifyProvider: FC<Props> = ({ children }) => {
       setCurPlaylistUpdated,
       waitingForSync,
       setWaitingForSync,
+      playlistsUpdated,
+      setPlaylistsUpdated,
     }),
     [
       currentPlaylistID,
@@ -67,11 +70,12 @@ const SpotifyProvider: FC<Props> = ({ children }) => {
       currentPlaylist,
       currentPlaylistTracks,
       flows,
-      playlistsUpdated,
+      playlistsChanged,
       curUpstream,
       curDownstream,
       curPlaylistUpdated,
       waitingForSync,
+      playlistsUpdated,
     ]
   );
 

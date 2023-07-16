@@ -9,12 +9,7 @@ const DEFAULT_IMG: string =
 interface Props {}
 
 const Playlist: React.FC<Props> = () => {
-  const {
-    currentPlaylist,
-    setCurrentPlaylist,
-    currentPlaylistTracks,
-    setCurrentPlaylistTracks,
-  } = useSpotify();
+  const { currentPlaylist, currentPlaylistTracks } = useSpotify();
   if (currentPlaylist == null) {
     return <div />;
   }

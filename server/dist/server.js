@@ -66,8 +66,8 @@ function createServer() {
             spotifyApi.setAccessToken(data.body.access_token);
         })
             .catch(function (err) {
-            console.log(err);
-            res.sendStatus(400);
+            console.error("Error during authorizationCodeGrant:", err);
+            res.status(err.statusCode || 400).send(err.message || "Error occurred");
         });
     });
     if (process.env.MONGO_URL != undefined) {

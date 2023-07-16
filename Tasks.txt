@@ -18,7 +18,7 @@ TODOs:
 
 - return proper order of playists in your library by changing promise.all to async op
 
-check - change playlistsUpdated state var to be a boolean that is changed everytime a playlist is updated instead of string of name of updated playlist
+check - change playlistsChanged state var to be a boolean that is changed everytime a playlist is updated instead of string of name of updated playlist
 
 - make flowing graphic cooler
 
@@ -34,7 +34,7 @@ check **- add support for deleted playlists. delete playlist from all flows.
 
 check **- No duplicates
 
-**- keep a cache of flows that have been changed
+check **- keep a cache of flows that have been changed
 
 check- checkbox to select flows
 
@@ -42,6 +42,14 @@ check **- separate logic for setting playlists in DB
 
 - remove deleted playlists from upstream/downstream
 
-**- fix sync
+check **- fix sync
 
 *- have floPopup reflect flow and allow deselect
+
+- Update playlists only when changed
+
+***- info button with demo
+
+- playlist description displayed
+
+- Make header title look cooler and make it a bar

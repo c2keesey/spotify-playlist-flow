@@ -8,6 +8,7 @@ export interface PlaylistSchemaI {
   owner: string;
   upstream: string[];
   downstream: string[];
+  changed: boolean;
 }
 
 // ids and upstream downstream ids will be the UUID spotify provides and will be referenced as such
@@ -32,6 +33,10 @@ export const PlaylistSchema = new Schema({
   downstream: {
     type: [String],
     default: [],
+  },
+  changed: {
+    type: Boolean,
+    default: false,
   },
 });
 

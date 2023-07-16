@@ -21,7 +21,6 @@ const FlowPopup: React.FC<PopupProps> = ({
 }) => {
   const [searchText, setSearchText] = useState("");
   // TODO: set badtarget when detect cycle
-  const [badTarget, setBadTarget] = useState(false);
   const { currentPlaylist, userPlaylists, curUpstream, curDownstream } =
     useSpotify();
 
@@ -30,19 +29,9 @@ const FlowPopup: React.FC<PopupProps> = ({
   };
 
   const handleAddFlowClick = () => {
-    if (!badTarget) {
-      closeFlowPopup();
-      setShowConfirmation(true);
-    }
+    closeFlowPopup();
+    setShowConfirmation(true);
   };
-
-  useEffect(() => {
-    if (currentPlaylist?.id === targetPlaylist) {
-      setBadTarget(true);
-    } else {
-      setBadTarget(false);
-    }
-  }, [targetPlaylist]);
 
   return (
     <Modal
@@ -80,14 +69,7 @@ const FlowPopup: React.FC<PopupProps> = ({
         </Container>
       </Modal.Body>
       <Modal.Footer>
-        {badTarget && (
-          <p style={{ color: "red" }}>Error: Cannot add self to flow</p>
-        )}
-        <Button
-          variant="primary"
-          disabled={badTarget}
-          onClick={handleAddFlowClick}
-        >
+        <Button variant="primary" onClick={handleAddFlowClick}>
           {isUpstream ? "Add Upstream" : "Add Downstream"}
         </Button>
       </Modal.Footer>

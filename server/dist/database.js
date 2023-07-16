@@ -23,6 +23,10 @@ export var PlaylistSchema = new Schema({
         type: [String],
         default: [],
     },
+    changed: {
+        type: Boolean,
+        default: false,
+    },
 });
 export var UserSchema = new Schema({
     userID: {

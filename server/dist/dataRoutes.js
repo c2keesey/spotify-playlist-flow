@@ -1,3 +1,14 @@
+var __assign = (this && this.__assign) || function () {
+    __assign = Object.assign || function(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -172,21 +183,23 @@ var updatePlaylist = function (playlist) { return __awaiter(void 0, void 0, void
             case 1:
                 tracks = _b.sent();
                 _loop_1 = function (downstreamPlaylist) {
-                    var downstreamTracks, tracksLeft, err_3;
+                    var downstreamTracks, filteredTracks, tracksLeft, err_3;
                     return __generator(this, function (_c) {
                         switch (_c.label) {
                             case 0: return [4 /*yield*/, getPlaylistTrackURIs(downstreamPlaylist)];
                             case 1:
                                 downstreamTracks = _c.sent();
-                                tracks = tracks.filter(function (track) { return !downstreamTracks.includes(track); });
-                                tracksLeft = tracks.length;
+                                filteredTracks = tracks.filter(function (track) { return !downstreamTracks.includes(track); });
+                                tracksLeft = filteredTracks.length;
                                 _c.label = 2;
                             case 2:
                                 if (!(tracksLeft > 0)) return [3 /*break*/, 7];
                                 _c.label = 3;
                             case 3:
                                 _c.trys.push([3, 5, , 6]);
-                                return [4 /*yield*/, spotifyApi.addTracksToPlaylist(downstreamPlaylist, tracks.slice(tracks.length - tracksLeft, tracksLeft > 100 ? tracks.length - tracksLeft + 100 : undefined))];
+                                return [4 /*yield*/, spotifyApi.addTracksToPlaylist(downstreamPlaylist, filteredTracks.slice(filteredTracks.length - tracksLeft, tracksLeft > 100
+                                        ? filteredTracks.length - tracksLeft + 100
+                                        : undefined))];
                             case 4:
                                 _c.sent();
                                 tracksLeft -= 100;
@@ -220,7 +233,7 @@ var updatePlaylist = function (playlist) { return __awaiter(void 0, void 0, void
 }); };
 dataRoutes.get("/syncPlaylists", function (req, res) {
     var owner = req.query.owner;
-    PlaylistModel.find({ owner: owner })
+    PlaylistModel.find({ owner: owner, changed: true })
         .then(function (playlists) { return __awaiter(void 0, void 0, void 0, function () {
         var nextUpdateBatch, _i, nextUpdateBatch_1, playlist, error_2, nextUpdateBatchTemp, _loop_2, _a, nextUpdateBatch_2, playlist, batchSet;
         return __generator(this, function (_b) {
@@ -323,7 +336,7 @@ var addSingleFlow = function (userID, currentPlaylist, targetPlaylist, isUpstrea
                 _c.trys.push([3, 6, , 7]);
                 flowType = isUpstream ? "upstream" : "downstream";
                 filter = { id: currentPlaylist, owner: userID };
-                update = { $addToSet: (_a = {}, _a[flowType] = targetPlaylist, _a) };
+                update = __assign({ $addToSet: (_a = {}, _a[flowType] = targetPlaylist, _a) }, (isUpstream ? {} : { $set: { changed: true } }));
                 return [4 /*yield*/, PlaylistModel.findOneAndUpdate(filter, update, {
                         new: true,
                     })];
@@ -331,7 +344,7 @@ var addSingleFlow = function (userID, currentPlaylist, targetPlaylist, isUpstrea
                 updateCurrentResult = _c.sent();
                 targetFilter = { id: targetPlaylist, owner: userID };
                 targetFlowType = !isUpstream ? "upstream" : "downstream";
-                targetUpdate = { $addToSet: (_b = {}, _b[targetFlowType] = currentPlaylist, _b) };
+                targetUpdate = __assign({ $addToSet: (_b = {}, _b[targetFlowType] = currentPlaylist, _b) }, (isUpstream ? { $set: { changed: true } } : {}));
                 return [4 /*yield*/, PlaylistModel.findOneAndUpdate(targetFilter, targetUpdate, {
                         new: true,
                     })];
@@ -372,7 +385,6 @@ dataRoutes.post("/addFlow", function (req, res) { return __awaiter(void 0, void 
                 _i++;
                 return [3 /*break*/, 1];
             case 4:
-                // Process the results and send the appropriate response
                 for (_b = 0, results_1 = results; _b < results_1.length; _b++) {
                     result = results_1[_b];
                     if (!result.success) {
