@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { Modal, Button, Container, Row, Col } from "react-bootstrap";
 import { useSpotify } from "./SpotifyContext";
 import PlaylistCard from "./PlaylistCard";
@@ -19,14 +19,9 @@ const FlowPopup: React.FC<PopupProps> = ({
   setShowConfirmation,
   handleCheckPlaylist,
 }) => {
-  const [searchText, setSearchText] = useState("");
   // TODO: set badtarget when detect cycle
   const { currentPlaylist, userPlaylists, curUpstream, curDownstream } =
     useSpotify();
-
-  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchText(event.target.value);
-  };
 
   const handleAddFlowClick = () => {
     closeFlowPopup();

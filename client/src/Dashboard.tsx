@@ -1,6 +1,6 @@
 /* eslint-disable-next-line */
 import SpotifyWebApi from "spotify-web-api-node";
-import { FC, useEffect, useState } from "react";
+import { FC, useEffect } from "react";
 import { Container, Row, Col } from "react-bootstrap";
 import YourLibrary from "./YourLibrary";
 import useAuth from "./useAuth";
@@ -11,7 +11,6 @@ import useCreateUser from "./useCreateUser";
 import Flow from "./Flow";
 import Controls from "./Controls";
 import useGetFlow from "./useGetFlow";
-import SetTokenButton from "./SetTokenButton";
 import "./Dashboard.css";
 
 const spotifyApi = new SpotifyWebApi({
@@ -33,8 +32,7 @@ const Dashboard: FC<Props> = ({ authCode }) => {
     playlistsChanged,
     setPlaylistsChanged,
     waitingForSync,
-    playlistsUpdated,
-    setPlaylistsUpdated,
+    userPlaylists,
   } = useSpotify();
 
   const accessToken: string | null = useAuth({ authCode });
@@ -42,48 +40,31 @@ const Dashboard: FC<Props> = ({ authCode }) => {
   // TODO: update only if playlists are changed
   useEffect(() => {
     if (!userID) return;
-    spotifyApi
-      .getUserPlaylists(userID)
-      .then((res) => {
-        const playlists: SpotifyApi.PlaylistObjectSimplified[] = [];
-        res.body.items.forEach((item) => {
-          playlists.push(item);
-        });
-        for (let i = 50; i < res.body.total; i += 50) {
-          spotifyApi
-            .getUserPlaylists(userID, { limit: 50, offset: i })
-            .then((data) => {
-              console.log(data);
-              data.body.items.forEach((item) => {
-                playlists.push(item);
-              });
-            })
-            .catch((err_playlist) => {
-              console.error(err_playlist);
-            });
-        }
-        setUserPlaylists(playlists);
-        setPlaylistsUpdated(!playlistsUpdated);
-        console.log("user playlists reset");
-      })
-      .catch((err) => {
-        console.log(err);
+    spotifyApi.getUserPlaylists(userID).then((res) => {
+      const playlists: SpotifyApi.PlaylistObjectSimplified[] = [];
+      res.body.items.forEach((item) => {
+        playlists.push(item);
       });
-  }, [userID, playlistsChanged]);
+      for (let i = 50; i < res.body.total; i += 50) {
+        spotifyApi
+          .getUserPlaylists(userID, { limit: 50, offset: i })
+          .then((data) => {
+            data.body.items.forEach((item) => {
+              playlists.push(item);
+            });
+          });
+      }
+      setUserPlaylists(playlists);
+    });
+  }, [userID, playlistsChanged, setUserPlaylists]);
 
   useEffect(() => {
     if (!accessToken) return;
     spotifyApi.setAccessToken(accessToken);
-    spotifyApi
-      .getMe()
-      .then((res) => {
-        setUserID(res.body.id);
-        console.log("user reset");
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  }, [accessToken, setUserID, setUserPlaylists]);
+    spotifyApi.getMe().then((res) => {
+      setUserID(res.body.id);
+    });
+  }, [accessToken, setUserID]);
 
   // Access Database
   useCreateUser();
@@ -98,7 +79,12 @@ const Dashboard: FC<Props> = ({ authCode }) => {
         setCurrentPlaylistTracks(res.body.items);
       });
     }
-  }, [currentPlaylistID, playlistsUpdated]);
+  }, [
+    currentPlaylistID,
+    userPlaylists,
+    setCurrentPlaylist,
+    setCurrentPlaylistTracks,
+  ]);
 
   // TODO: update flows properly when new playlist created, change creation of database objects to be on query instead of batched? or finish implementing caching
   useGetFlow();
@@ -114,12 +100,8 @@ const Dashboard: FC<Props> = ({ authCode }) => {
         public: isPublic,
         collaborative: false,
       })
-      .then((response) => {
+      .then(() => {
         setPlaylistsChanged(!playlistsChanged);
-        console.log("New playlist created!", response);
-      })
-      .catch((error) => {
-        console.error("Error creating playlist:", error);
       });
   };
 

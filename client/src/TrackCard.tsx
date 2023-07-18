@@ -1,5 +1,5 @@
-import { FC, useState, useEffect } from "react";
-import { Card, Row, Col } from "react-bootstrap";
+import { FC } from "react";
+import { Card, Col } from "react-bootstrap";
 import "./TrackCard.css";
 import { useSpotify } from "./SpotifyContext";
 
@@ -24,16 +24,11 @@ interface Props {
 
 const TrackCard: FC<Props> = ({ track }) => {
   // TODO: add active for player
-  const [isActive, setIsActive] = useState(false);
 
   const { DEFAULT_IMG } = useSpotify();
 
   return (
-    <Card
-      className={`flex-row align-items-center track-card ${
-        isActive ? "active" : "non-active"
-      }`}
-    >
+    <Card className="flex-row align-items-center track-card non-active">
       <Col className="d-flex align-items-start align-items-center track-name">
         <Card.Img
           className="track-card-img"

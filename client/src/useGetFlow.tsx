@@ -44,12 +44,17 @@ const useGetFlow = () => {
               (playlist: SpotifyApi.PlaylistObjectSimplified) => playlist.name
             )
         );
-      })
-      .catch((err) => {
-        console.error(err);
       });
     setCurPlaylistUpdated(false);
-  }, [currentPlaylist, curPlaylistUpdated]);
+  }, [
+    currentPlaylist,
+    curPlaylistUpdated,
+    setCurUpstream,
+    setCurDownstream,
+    setCurPlaylistUpdated,
+    userID,
+    userPlaylists,
+  ]);
 };
 
 export default useGetFlow;

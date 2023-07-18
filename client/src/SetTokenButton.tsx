@@ -11,7 +11,6 @@ const SetTokenButton: FC<SetTokenButtonProps> = ({ token }) => {
       const response = await axios.post("http://localhost:3001/setToken", {
         accessToken: token,
       });
-      console.log(response.data); // Success message from server
     } catch (error) {
       console.error("Error setting token", error);
     }

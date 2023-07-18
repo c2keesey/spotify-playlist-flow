@@ -30,8 +30,6 @@ interface SpotifyContextData {
   setFlows: React.Dispatch<React.SetStateAction<Record<string, FlowInterface>>>;
   playlistsChanged: boolean;
   setPlaylistsChanged: React.Dispatch<React.SetStateAction<boolean>>;
-  playlistsUpdated: boolean;
-  setPlaylistsUpdated: React.Dispatch<React.SetStateAction<boolean>>;
   curUpstream: string[];
   setCurUpstream: React.Dispatch<React.SetStateAction<string[]>>;
   curDownstream: string[];

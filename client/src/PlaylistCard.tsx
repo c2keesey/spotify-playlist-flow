@@ -24,7 +24,7 @@ const PlaylistCard: FC<Props> = ({ playlist, onClick, selected, canCheck }) => {
         setIsActive(false);
       }
     }
-  }, [selected, playlist.id]);
+  }, [selected, playlist.id, canCheck]);
 
   const handleClick: () => void = () => {
     if (canCheck) {

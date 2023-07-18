@@ -70,7 +70,6 @@ const Controls: React.FC<Props> = ({ createPlaylist }) => {
   };
 
   const handleConfirmAddFlow = () => {
-    console.log(targetPlaylists);
     axios
       .post("http://localhost:3001/data/addFlow", {
         userID,
@@ -81,18 +80,12 @@ const Controls: React.FC<Props> = ({ createPlaylist }) => {
       .then((res) => {
         if (res.status === 400) {
           // TODO: error popup
-          console.log("Error adding flow. Cylce detected.");
         } else {
-          console.log("Successfully added flow");
-          console.log(res);
           setCurPlaylistUpdated(true);
           setShowConfirmation(false);
           setTargetPlaylists([]);
           handleCloseFlowPopup();
         }
-      })
-      .catch((err) => {
-        console.log(err);
       });
   };
 
@@ -109,13 +102,12 @@ const Controls: React.FC<Props> = ({ createPlaylist }) => {
           owner: userID,
         },
       })
-      .then((resp) => {
+      .then(() => {
         // create success popup
         setPlaylistsChanged(!playlistsChanged);
         setWaitingForSync(false);
       })
-      .catch((error) => {
-        console.error(error);
+      .catch(() => {
         setWaitingForSync(false);
       });
   };

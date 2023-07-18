@@ -3,20 +3,13 @@ import axios from "axios";
 import { useSpotify } from "./SpotifyContext";
 
 const useCreateUser = () => {
-  const { userPlaylists, userID, playlistsUpdated } = useSpotify();
+  const { userPlaylists, userID } = useSpotify();
 
   useEffect(() => {
     if (userID) {
-      axios
-        .post("http://localhost:3001/data/createUser", {
-          userID,
-        })
-        .then(() => {
-          console.log("Successfully created user");
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+      axios.post("http://localhost:3001/data/createUser", {
+        userID,
+      });
     }
   }, [userID]);
 
@@ -27,16 +20,12 @@ const useCreateUser = () => {
           return { id: playlist.id, name: playlist.name };
         }
       );
-      axios
-        .post("http://localhost:3001/data/setPlaylists", {
-          userID,
-          userPlaylistIDs,
-        })
-        .then((res) => {
-          console.log(res.data.message);
-        });
+      axios.post("http://localhost:3001/data/setPlaylists", {
+        userID,
+        userPlaylistIDs,
+      });
     }
-  }, [playlistsUpdated]);
+  }, [userID, userPlaylists]);
 };
 
 export default useCreateUser;

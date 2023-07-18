@@ -16,7 +16,7 @@
 }
 
 .image-start {
-    align-items: start !important;
+    align-items: flex-start !important;
     display: flex;
 }
 
