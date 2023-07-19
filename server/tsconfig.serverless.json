@@ -99,8 +99,7 @@
     /* Completeness */
     // "skipDefaultLibCheck": true,                      /* Skip type checking .d.ts files that are included with TypeScript. */
     "skipLibCheck": true,
-    "outDir": "./netlify/functions",
-    "verbatimModuleSyntax": true,
+    "outDir": "./netlify/functions"
   },
   "include": ["src/functions/**/*"],
   "ts-node": {
@@ -108,5 +107,5 @@
       "module": "ESNext",
       "downlevelIteration": true
     }
-  },
+  }
 }

@@ -48,11 +48,10 @@ const handler: Handler = async (
   } catch (err) {
     const resBody = JSON.stringify({
       error: "Error during authorizationCodeGrant:",
-      errorMessage: err.message,
     });
 
     return {
-      statusCode: err.statusCode || 400,
+      statusCode: 400,
       body: resBody,
     };
   }
