@@ -14,7 +14,7 @@ const __dirname = dirname(__filename);
 config({ path: resolve(__dirname, "../../secret.env") });
 
 const client_id = "5e3726a0ec3f4360bf3d47eb34207aa8";
-const redirect_uri = "http://localhost:3000";
+const redirect_uri = "https://spotify-playlist-flow.netlify.app";
 const client_secret = process.env.client_secret;
 
 const spotifyApi = new SpotifyWebApi({
@@ -44,9 +44,7 @@ function createServer() {
     spotifyApi.setAccessToken(accessToken);
 
     res.status(200).json({ message: "Access token set successfully." });
-    console.log("Access token set successfully.");
   });
-
 
   app.post("/refresh", (req, res) => {
     const refreshToken = req.body.refreshToken;
@@ -62,7 +60,6 @@ function createServer() {
         });
       })
       .catch(() => {
-        console.log("error");
         res.sendStatus(400);
       });
   });
@@ -92,22 +89,16 @@ function createServer() {
         useNewUrlParser: true,
         useUnifiedTopology: true,
       } as any)
-      .then(() => console.log("database connected"))
-      .catch((err) => console.log(err));
 
     mongoose.connection.on("connected", () => {
-      console.log("Mongoose is connected");
     });
 
     mongoose.connection.on("error", (err) => {
-      console.log(`Mongoose connection error: ${err}`);
     });
 
     mongoose.connection.on("disconnected", () => {
-      console.log("Mongoose disconnected");
     });
   } else {
-    console.log("missing mongoDB url");
   }
 
   app.use("/data", dataRoutes);

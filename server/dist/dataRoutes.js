@@ -84,7 +84,6 @@ dataRoutes.post("/setPlaylists", function (req, res) { return __awaiter(void 0, 
             case 1:
                 // Create or update playlists
                 _a.sent();
-                console.log("update playlist success");
                 // Remove playlists not in req.body
                 return [4 /*yield*/, PlaylistModel.deleteMany({
                         owner: req.body.userID,
@@ -108,7 +107,6 @@ dataRoutes.post("/createUser", function (req, res) {
     UserModel.find({ userID: req.body.userID })
         .then(function (user) {
         if (user.length === 0) {
-            console.log("creating user");
             UserModel.create({
                 userID: req.body.userID,
             })
@@ -225,9 +223,7 @@ var updatePlaylist = function (playlist) { return __awaiter(void 0, void 0, void
             case 4:
                 _i++;
                 return [3 /*break*/, 2];
-            case 5:
-                console.log("Success updating downstream playlists of ".concat(playlist.name));
-                return [2 /*return*/];
+            case 5: return [2 /*return*/];
         }
     });
 }); };

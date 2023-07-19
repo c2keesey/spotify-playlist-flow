@@ -38,7 +38,6 @@ dataRoutes.post("/setPlaylists", async (req, res) => {
       )
     );
 
-    console.log("update playlist success");
 
     // Remove playlists not in req.body
     await PlaylistModel.deleteMany({
@@ -57,7 +56,6 @@ dataRoutes.post("/createUser", (req, res) => {
   UserModel.find({ userID: req.body.userID })
     .then((user) => {
       if (user.length === 0) {
-        console.log("creating user");
         UserModel.create({
           userID: req.body.userID,
         })
@@ -150,7 +148,6 @@ const updatePlaylist = async (playlist: PlaylistSchemaI) => {
     }
   }
 
-  console.log(`Success updating downstream playlists of ${playlist.name}`);
 };
 
 dataRoutes.get("/syncPlaylists", (req, res) => {
