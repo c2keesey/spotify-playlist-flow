@@ -12,9 +12,12 @@ const useAuth = ({ authCode }: Props) => {
 
   useEffect(() => {
     axios
-      .post("http://localhost:3001/login", {
-        authCode,
-      })
+      .post(
+        "https://spotify-playlist-flow-server.netlify.app/.netlify/functions/login",
+        {
+          authCode,
+        }
+      )
       .then((res) => {
         setAccessToken(res.data.accessToken);
         setRefreshToken(res.data.refreshToken);
