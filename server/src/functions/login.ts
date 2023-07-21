@@ -30,15 +30,15 @@ const handler: Handler = async (
   if (event.httpMethod !== "POST") {
     return {
       statusCode: 405,
-      body: "Method Not Allowed",
+      body: "Method Not Allowed here",
       headers: { ...corsHeaders, Allow: "POST" },
     };
   }
 
   const body = JSON.parse(event.body || "{}");
-  const { code } = body;
+  const { authCode } = body;
 
-  if (!code) {
+  if (!authCode) {
     return {
       statusCode: 400,
       body: JSON.stringify({ message: "Authorization code must be supplied." }),
@@ -46,7 +46,7 @@ const handler: Handler = async (
   }
 
   try {
-    const data = await spotifyApi.authorizationCodeGrant(code);
+    const data = await spotifyApi.authorizationCodeGrant(authCode);
     const resBody = JSON.stringify({
       accessToken: data.body.access_token,
       refreshToken: data.body.refresh_token,
