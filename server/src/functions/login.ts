@@ -60,6 +60,7 @@ const handler: Handler = async (
 
     return {
       statusCode: 200,
+      headers: corsHeaders,
       body: resBody,
     };
   } catch (err) {
