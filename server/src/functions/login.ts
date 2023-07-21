@@ -15,11 +15,15 @@ const handler: Handler = async (
   event: HandlerEvent,
   context: HandlerContext
 ) => {
+  console.log("Request headers:", event.headers);
+
   const corsHeaders = {
-    "Access-Control-Allow-Origin": "*", // This allows all origins. Adjust this if you want to restrict which domains can call your function
+    "Access-Control-Allow-Origin": "https://spotify-playlist-flow.netlify.app",
     "Access-Control-Allow-Methods": "POST, OPTIONS",
     "Access-Control-Allow-Headers": "Content-Type", // Adjust this if you expect other headers in the actual request
   };
+  console.log("Response headers:", corsHeaders);
+
   if (event.httpMethod === "OPTIONS") {
     return {
       statusCode: 204,
@@ -41,6 +45,7 @@ const handler: Handler = async (
   if (!authCode) {
     return {
       statusCode: 400,
+      headers: corsHeaders,
       body: JSON.stringify({ message: "Authorization code must be supplied." }),
     };
   }
