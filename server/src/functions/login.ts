@@ -15,11 +15,23 @@ const handler: Handler = async (
   event: HandlerEvent,
   context: HandlerContext
 ) => {
+  const corsHeaders = {
+    "Access-Control-Allow-Origin": "*", // This allows all origins. Adjust this if you want to restrict which domains can call your function
+    "Access-Control-Allow-Methods": "POST, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type", // Adjust this if you expect other headers in the actual request
+  };
+  if (event.httpMethod === "OPTIONS") {
+    return {
+      statusCode: 204,
+      headers: corsHeaders,
+      body: "", // No content for OPTIONS responses
+    };
+  }
   if (event.httpMethod !== "POST") {
     return {
       statusCode: 405,
       body: "Method Not Allowed",
-      headers: { Allow: "POST" },
+      headers: { ...corsHeaders, Allow: "POST" },
     };
   }
 
@@ -52,6 +64,7 @@ const handler: Handler = async (
 
     return {
       statusCode: 400,
+      headers: corsHeaders,
       body: resBody,
     };
   }
