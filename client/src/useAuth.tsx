@@ -34,9 +34,12 @@ const useAuth = ({ authCode }: Props) => {
     if (!refreshToken || !expiresIn) return;
     const interval = setInterval(() => {
       axios
-        .post("http://localhost:3001/refresh", {
-          refreshToken,
-        })
+        .post(
+          "http://spotify-playlist-flow-server.netlify.app/.netlify/functions/refresh",
+          {
+            refreshToken,
+          }
+        )
         .then((res) => {
           setAccessToken(res.data.accessToken);
           setExpiresIn(res.data.expiresIn);

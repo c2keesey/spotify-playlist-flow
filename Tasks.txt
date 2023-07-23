@@ -53,3 +53,5 @@ check **- fix sync
 - playlist description displayed
 
 - Make header title look cooler and make it a bar
+
+- move all spotifyApi calls into serverless functions

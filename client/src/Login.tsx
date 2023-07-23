@@ -4,6 +4,9 @@
 const AUTH_URL: string =
   "https://accounts.spotify.com/authorize?client_id=5e3726a0ec3f4360bf3d47eb34207aa8&response_type=code&redirect_uri=https://spotify-playlist-flow.netlify.app&scope=streaming%20user-read-email%20user-read-private%20user-library-read%20user-library-modify%20playlist-modify-public%20playlist-modify-private%20playlist-read-private";
 
+const AUTH_URL_LOCAL: string =
+  "https://accounts.spotify.com/authorize?client_id=5e3726a0ec3f4360bf3d47eb34207aa8&response_type=code&redirect_uri=http://localhost:3000&scope=streaming%20user-read-email%20user-read-private%20user-library-read%20user-library-modify%20playlist-modify-public%20playlist-modify-private%20playlist-read-private";
+
 const Login = () => {
   // const handleButtonClick = () => {
   //   const client_id = '5e3726a0ec3f4360bf3d47eb34207aa8';

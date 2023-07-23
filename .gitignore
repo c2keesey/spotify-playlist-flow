@@ -25,3 +25,5 @@ yarn-error.log*
 
 # credentials
 secret.env
+# Local Netlify folder
+.netlify

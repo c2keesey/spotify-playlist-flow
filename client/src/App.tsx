@@ -10,7 +10,7 @@ const authCode = new URLSearchParams(window.location.search).get("code");
 const App: FC<Props> = () => {
   return authCode ? (
     <SpotifyProvider>
-      <Dashboard authCode={authCode} />{" "}
+      <Dashboard authCode={authCode} />
     </SpotifyProvider>
   ) : (
     <Login />
