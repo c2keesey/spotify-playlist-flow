@@ -1,5 +1,5 @@
 import express from "express";
-import { UserModel, PlaylistModel, PlaylistSchemaI } from "./database.js";
+import { UserModel, PlaylistModel, PlaylistSchemaI } from "../database.js";
 import { spotifyApi } from "./server.js";
 
 const dataRoutes = express.Router();

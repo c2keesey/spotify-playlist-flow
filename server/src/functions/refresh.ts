@@ -1,29 +1,30 @@
 import { Handler, HandlerEvent, HandlerContext } from "@netlify/functions";
 import { SpotifyBaseHandler } from "../function_helpers/spotifyBaseHandler";
 
-class LoginHandler extends SpotifyBaseHandler {
+class RefreshHandler extends SpotifyBaseHandler {
   async handle(event: HandlerEvent, context: HandlerContext) {
     const corsResponse = this.handleCors(event);
     if (corsResponse) return corsResponse;
 
     const body = JSON.parse(event.body || "{}");
-    const { authCode } = body;
+    const { refreshToken } = body;
 
-    if (!authCode) {
+    if (!refreshToken) {
       return {
         statusCode: 400,
         headers: this.corsHeaders,
         body: JSON.stringify({
-          message: "Authorization code must be supplied.",
+          message: "Refresh token must be supplied.",
         }),
       };
     }
 
+    this.spotifyApi.setRefreshToken(refreshToken);
+
     try {
-      const data = await this.spotifyApi.authorizationCodeGrant(authCode);
+      const data = await this.spotifyApi.refreshAccessToken();
       const resBody = JSON.stringify({
         accessToken: data.body.access_token,
-        refreshToken: data.body.refresh_token,
         expiresIn: data.body.expires_in,
       });
 
@@ -34,7 +35,7 @@ class LoginHandler extends SpotifyBaseHandler {
       };
     } catch (err) {
       const resBody = JSON.stringify({
-        error: "Error during authorizationCodeGrant:",
+        error: "Error refreshing access token",
       });
 
       return {
@@ -47,8 +48,8 @@ class LoginHandler extends SpotifyBaseHandler {
 }
 
 const handler: Handler = async (event, context) => {
-  const loginHandler = new LoginHandler();
-  return await loginHandler.handle(event, context);
+  const refreshHandler = new RefreshHandler();
+  return await refreshHandler.handle(event, context);
 };
 
 export { handler };
