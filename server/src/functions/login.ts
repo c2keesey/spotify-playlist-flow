@@ -3,8 +3,27 @@ import { SpotifyBaseHandler } from "../function_helpers/spotifyBaseHandler";
 
 class LoginHandler extends SpotifyBaseHandler {
   async handle(event: HandlerEvent, context: HandlerContext) {
-    const corsResponse = this.handleCors(event);
-    if (corsResponse) return corsResponse;
+    const corsHeaders = {
+      "Access-Control-Allow-Origin":
+        "https://spotify-playlist-flow.netlify.app",
+      "Access-Control-Allow-Methods": "POST, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type", // Adjust this if you expect other headers in the actual request
+    };
+
+    if (event.httpMethod === "OPTIONS") {
+      return {
+        statusCode: 204,
+        headers: corsHeaders,
+        body: "", // No content for OPTIONS responses
+      };
+    }
+    if (event.httpMethod !== "POST") {
+      return {
+        statusCode: 405,
+        body: "Method Not Allowed here",
+        headers: { ...corsHeaders, Allow: "POST" },
+      };
+    }
 
     const body = JSON.parse(event.body || "{}");
     const { authCode } = body;
