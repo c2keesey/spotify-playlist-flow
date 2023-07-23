@@ -1,13 +1,2 @@
 [build]
   functions = "netlify/functions"
-
-[[redirects]]
-  from = "/functions/login"
-  to = "http://localhost:3000"
-  status = 200
-  force = true
-  headers = {X-From = "Netlify"}
-[[headers]]
-  for = "/*"
-  [headers.values]
-    Access-Control-Allow-Origin = "*"
