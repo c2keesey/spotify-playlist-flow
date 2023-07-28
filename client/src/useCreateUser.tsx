@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import axios from "axios";
 import { useSpotify } from "./SpotifyContext";
+import BASE_URL from "./routing";
 
 const useCreateUser = () => {
   const { userPlaylists, userID } = useSpotify();
@@ -13,20 +14,14 @@ const useCreateUser = () => {
         }
       );
       axios
-        .post(
-          "https://spotify-playlist-flow-server.netlify.app/.netlify/functions/createUser",
-          {
-            userID,
-          }
-        )
+        .post(`${BASE_URL}/createUser`, {
+          userID,
+        })
         .then(() => {
-          axios.post(
-            "https://spotify-playlist-flow-server.netlify.app/.netlify/functions/setPlaylists",
-            {
-              userID,
-              userPlaylistIDs,
-            }
-          );
+          axios.post(`${BASE_URL}/setPlaylists`, {
+            userID,
+            userPlaylistIDs,
+          });
         });
     }
   }, [userID, userPlaylists]);

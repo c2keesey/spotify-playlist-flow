@@ -5,6 +5,7 @@ import { useSpotify } from "./SpotifyContext";
 import "./Flow.css";
 import AddPlaylistPopup from "./AddPlaylistPopup";
 import FlowPopup from "./FlowPopup";
+import BASE_URL from "./routing";
 
 interface Props {
   createPlaylist: (
@@ -73,15 +74,12 @@ const Controls: React.FC<Props> = ({ createPlaylist, accessToken }) => {
 
   const handleConfirmAddFlow = () => {
     axios
-      .post(
-        "https://spotify-playlist-flow-server.netlify.app/.netlify/functions/addFlow",
-        {
-          userID,
-          currentPlaylist: currentPlaylist?.id,
-          targetPlaylists,
-          isUpstream,
-        }
-      )
+      .post(`${BASE_URL}/addFlow`, {
+        userID,
+        currentPlaylist: currentPlaylist?.id,
+        targetPlaylists,
+        isUpstream,
+      })
       .then(() => {
         setCurPlaylistUpdated(true);
         setShowConfirmation(false);
@@ -104,13 +102,10 @@ const Controls: React.FC<Props> = ({ createPlaylist, accessToken }) => {
   const handleSync = () => {
     setWaitingForSync(true);
     axios
-      .post(
-        "https://spotify-playlist-flow-server.netlify.app/.netlify/functions/sync",
-        {
-          userID,
-          accessToken,
-        }
-      )
+      .post(`${BASE_URL}/sync`, {
+        userID,
+        accessToken,
+      })
       .then(() => {
         // create success popup
         setPlaylistsChanged(!playlistsChanged);

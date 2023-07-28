@@ -71,3 +71,7 @@ check - move all spotifyApi calls into serverless functions
 check- error popup when cycle detected 
 
 - Maintian open mongoDB connection
+
+- Logout that also clears cache
+
+***- add support for non-user playlists

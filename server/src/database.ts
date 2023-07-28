@@ -46,10 +46,6 @@ export const UserSchema = new Schema({
     required: true,
     unique: true,
   },
-  playlists: {
-    type: [PlaylistSchema],
-    default: [],
-  },
 });
 
 export const UserModel = mongoose.model("User", UserSchema);

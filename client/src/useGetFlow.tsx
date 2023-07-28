@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import axios from "axios";
 import { useSpotify } from "./SpotifyContext";
+import BASE_URL from "./routing";
 
 const useGetFlow = () => {
   const {
@@ -16,15 +17,12 @@ const useGetFlow = () => {
   useEffect(() => {
     if (!currentPlaylist) return;
     axios
-      .get(
-        "https://spotify-playlist-flow-server.netlify.app/.netlify/functions/getFlow",
-        {
-          params: {
-            id: currentPlaylist.id,
-            owner: userID,
-          },
-        }
-      )
+      .get(`${BASE_URL}/getFlow`, {
+        params: {
+          id: currentPlaylist.id,
+          owner: userID,
+        },
+      })
       .then((res) => {
         setCurUpstream(
           res.data[0].upstream

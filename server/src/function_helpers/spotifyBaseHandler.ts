@@ -24,7 +24,6 @@ export abstract class SpotifyBaseHandler {
   }
 
   protected async initializeMongoDB() {
-    console.log("try mongodb");
     if (process.env.MONGO_URL) {
       try {
         await mongoose.connect(process.env.MONGO_URL, {
@@ -38,7 +37,6 @@ export abstract class SpotifyBaseHandler {
     } else {
       console.error("MONGO_URL not provided in environment variables");
     }
-    console.log("end mongodb");
   }
 
   protected handleCors(event: HandlerEvent) {
