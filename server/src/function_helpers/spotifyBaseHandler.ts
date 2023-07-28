@@ -1,7 +1,6 @@
 import { HandlerEvent } from "@netlify/functions";
 import mongoose, { ConnectOptions } from "mongoose";
 import SpotifyWebApi from "spotify-web-api-node";
-import { UserModel, PlaylistModel, PlaylistSchemaI } from "../database.js";
 
 export abstract class SpotifyBaseHandler {
   protected corsHeaders = {
@@ -25,6 +24,7 @@ export abstract class SpotifyBaseHandler {
   }
 
   protected async initializeMongoDB() {
+    console.log("try mongodb");
     if (process.env.MONGO_URL) {
       try {
         await mongoose.connect(process.env.MONGO_URL, {
@@ -38,6 +38,7 @@ export abstract class SpotifyBaseHandler {
     } else {
       console.error("MONGO_URL not provided in environment variables");
     }
+    console.log("end mongodb");
   }
 
   protected handleCors(event: HandlerEvent) {
