@@ -12,9 +12,10 @@ interface Props {
     description: string,
     isPublic: boolean
   ) => void;
+  accessToken: string | null;
 }
 
-const Controls: React.FC<Props> = ({ createPlaylist }) => {
+const Controls: React.FC<Props> = ({ createPlaylist, accessToken }) => {
   const {
     currentPlaylist,
     userID,
@@ -30,6 +31,7 @@ const Controls: React.FC<Props> = ({ createPlaylist }) => {
   const [isUpstream, setIsUpstream] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [targetPlaylists, setTargetPlaylists] = useState<string[]>([]);
+  const [showErrorPopup, setShowErrorPopup] = useState(false);
 
   const handleCheckPlaylist = (playlist: string) => {
     if (targetPlaylists.includes(playlist)) {
@@ -71,20 +73,25 @@ const Controls: React.FC<Props> = ({ createPlaylist }) => {
 
   const handleConfirmAddFlow = () => {
     axios
-      .post("http://localhost:9999/.netlify/functions/addFlow", {
-        userID,
-        currentPlaylist: currentPlaylist?.id,
-        targetPlaylists,
-        isUpstream,
+      .post(
+        "https://spotify-playlist-flow-server.netlify.app/.netlify/functions/addFlow",
+        {
+          userID,
+          currentPlaylist: currentPlaylist?.id,
+          targetPlaylists,
+          isUpstream,
+        }
+      )
+      .then(() => {
+        setCurPlaylistUpdated(true);
+        setShowConfirmation(false);
+        setTargetPlaylists([]);
+        handleCloseFlowPopup();
       })
-      .then((res) => {
-        if (res.status === 400) {
-          // TODO: error popup
-        } else {
-          setCurPlaylistUpdated(true);
+      .catch((err) => {
+        if (err.response.status === 400) {
           setShowConfirmation(false);
-          setTargetPlaylists([]);
-          handleCloseFlowPopup();
+          setShowErrorPopup(true);
         }
       });
   };
@@ -97,9 +104,13 @@ const Controls: React.FC<Props> = ({ createPlaylist }) => {
   const handleSync = () => {
     setWaitingForSync(true);
     axios
-      .post("http://localhost:9999/.netlify/functions/sync", {
-        owner: userID,
-      })
+      .post(
+        "https://spotify-playlist-flow-server.netlify.app/.netlify/functions/sync",
+        {
+          userID,
+          accessToken,
+        }
+      )
       .then(() => {
         // create success popup
         setPlaylistsChanged(!playlistsChanged);
@@ -151,6 +162,17 @@ const Controls: React.FC<Props> = ({ createPlaylist }) => {
           </Button>
           <Button variant="primary" onClick={handleConfirmAddFlow}>
             Confirm
+          </Button>
+        </Modal.Footer>
+      </Modal>
+      <Modal show={showErrorPopup} onHide={() => setShowErrorPopup(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Error</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>Cannot create cycles in flows</Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowErrorPopup(false)}>
+            Close
           </Button>
         </Modal.Footer>
       </Modal>

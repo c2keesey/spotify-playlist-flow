@@ -117,7 +117,7 @@ const Dashboard: FC<Props> = ({ authCode }) => {
           ) : null}
         </Col>
         <Col md={10} className="text-center">
-          <h1>Playlist Flow</h1>
+          <h1>Spotify Playlist Flow</h1>
         </Col>
         <Col md={1} />
       </Row>
@@ -134,7 +134,7 @@ const Dashboard: FC<Props> = ({ authCode }) => {
             <Flow />
           </Row>
           <Row className="p-3" style={{ height: "30%" }}>
-            <Controls createPlaylist={createPlaylist} />
+            <Controls createPlaylist={createPlaylist} accessToken={accessToken} />
           </Row>
         </Col>
       </Row>

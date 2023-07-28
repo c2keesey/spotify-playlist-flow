@@ -16,6 +16,8 @@ TODOs:
 
 - Add playlist image to new playlist
 
+- create success popup after done flowing with summary of changes
+
 - return proper order of playists in your library by changing promise.all to async op
 
 check - change playlistsChanged state var to be a boolean that is changed everytime a playlist is updated instead of string of name of updated playlist
@@ -54,10 +56,17 @@ check **- fix sync
 
 - Make header title look cooler and make it a bar
 
-- move all spotifyApi calls into serverless functions
+check - move all spotifyApi calls into serverless functions
 
 - test refresh token serverless func
 
 **- make database ops atomic
 
 **- Add user authentication for database access
+
+- Only call useCreateUser when playlists are added instead of playlists 
+
+- add delete playlist button (right click?)
+
+check- error popup when cycle detected 
+

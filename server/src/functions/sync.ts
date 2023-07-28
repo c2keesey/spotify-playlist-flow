@@ -77,9 +77,11 @@ class SyncPlaylistsHandler extends SpotifyBaseHandler {
 
     await this.initializeMongoDB();
 
-    const { owner } = JSON.parse(event.body || "{}");
+    const { userID, accessToken } = JSON.parse(event.body || "{}");
 
-    if (!owner) {
+    this.spotifyApi.setAccessToken(accessToken);
+
+    if (!userID) {
       return {
         statusCode: 400,
         headers: this.corsHeaders,
@@ -89,7 +91,7 @@ class SyncPlaylistsHandler extends SpotifyBaseHandler {
 
     try {
       const playlists: PlaylistSchemaI[] = await PlaylistModel.find({
-        owner: owner,
+        owner: userID,
         changed: true,
       });
       let nextUpdateBatch = playlists.filter(

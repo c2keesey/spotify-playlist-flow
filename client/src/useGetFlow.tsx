@@ -16,12 +16,15 @@ const useGetFlow = () => {
   useEffect(() => {
     if (!currentPlaylist) return;
     axios
-      .get("http://localhost:9999/.netlify/functions/getFlow", {
-        params: {
-          id: currentPlaylist.id,
-          owner: userID,
-        },
-      })
+      .get(
+        "https://spotify-playlist-flow-server.netlify.app/.netlify/functions/getFlow",
+        {
+          params: {
+            id: currentPlaylist.id,
+            owner: userID,
+          },
+        }
+      )
       .then((res) => {
         setCurUpstream(
           res.data[0].upstream
@@ -53,7 +56,6 @@ const useGetFlow = () => {
     setCurDownstream,
     setCurPlaylistUpdated,
     userID,
-    userPlaylists,
   ]);
 };
 
