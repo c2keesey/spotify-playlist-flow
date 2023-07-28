@@ -7,23 +7,27 @@ const useCreateUser = () => {
 
   useEffect(() => {
     if (userID) {
-      axios.post("http://localhost:3001/data/createUser", {
+      axios.post("http://localhost:9999/.netlify/functions/createUser", {
         userID,
       });
     }
   }, [userID]);
 
   useEffect(() => {
-    if (userID) {
+    if (userID && userPlaylists.length > 0) {
       const userPlaylistIDs = userPlaylists.map(
         (playlist: SpotifyApi.PlaylistObjectSimplified) => {
           return { id: playlist.id, name: playlist.name };
         }
       );
-      axios.post("http://localhost:3001/data/setPlaylists", {
-        userID,
-        userPlaylistIDs,
-      });
+      axios.post(
+        // "http://localhost:3001/data/setPlaylists",
+        "http://localhost:9999/.netlify/functions/setPlaylists",
+        {
+          userID,
+          userPlaylistIDs,
+        }
+      );
     }
   }, [userID, userPlaylists]);
 };

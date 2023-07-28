@@ -47,7 +47,7 @@ const Login = () => {
         height: "100vh",
       }}
     >
-      <a className="btn btn-success btn-lg" href={AUTH_URL}>
+      <a className="btn btn-success btn-lg" href={AUTH_URL_LOCAL}>
         Login with Spotify
       </a>
     </div>

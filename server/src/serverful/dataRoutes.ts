@@ -38,7 +38,6 @@ dataRoutes.post("/setPlaylists", async (req, res) => {
       )
     );
 
-
     // Remove playlists not in req.body
     await PlaylistModel.deleteMany({
       owner: req.body.userID,
@@ -147,7 +146,6 @@ const updatePlaylist = async (playlist: PlaylistSchemaI) => {
       }
     }
   }
-
 };
 
 dataRoutes.get("/syncPlaylists", (req, res) => {
@@ -219,7 +217,7 @@ const addSingleFlow = async (
   currentPlaylist: string,
   targetPlaylist: string,
   isUpstream: boolean
-) => {
+): Promise<FlowResult> => {
   // Check for cycles
   try {
     const allPlaylists: Record<string, string[]> = {};
@@ -284,6 +282,14 @@ const addSingleFlow = async (
   }
 };
 
+type FlowResult = {
+  success: boolean;
+  status: number;
+  message?: string;
+  current?: any; // Define a more specific type if you know the structure
+  target?: any; // Same here
+};
+
 dataRoutes.post("/addFlow", async (req, res) => {
   interface RequestBody {
     userID: string;
@@ -293,7 +299,7 @@ dataRoutes.post("/addFlow", async (req, res) => {
   }
   const { userID, currentPlaylist, targetPlaylists, isUpstream }: RequestBody =
     req.body;
-  const results = [];
+  const results: FlowResult[] = [];
   for (const playlist of targetPlaylists) {
     const result = await addSingleFlow(
       userID,

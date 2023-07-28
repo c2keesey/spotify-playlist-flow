@@ -71,7 +71,7 @@ const Controls: React.FC<Props> = ({ createPlaylist }) => {
 
   const handleConfirmAddFlow = () => {
     axios
-      .post("http://localhost:3001/data/addFlow", {
+      .post("http://localhost:9999/.netlify/functions/addFlow", {
         userID,
         currentPlaylist: currentPlaylist?.id,
         targetPlaylists,
@@ -97,10 +97,8 @@ const Controls: React.FC<Props> = ({ createPlaylist }) => {
   const handleSync = () => {
     setWaitingForSync(true);
     axios
-      .get("http://localhost:3001/data/syncPlaylists", {
-        params: {
-          owner: userID,
-        },
+      .post("http://localhost:9999/.netlify/functions/sync", {
+        owner: userID,
       })
       .then(() => {
         // create success popup

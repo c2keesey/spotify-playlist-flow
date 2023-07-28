@@ -13,7 +13,8 @@ const useAuth = ({ authCode }: Props) => {
   useEffect(() => {
     axios
       .post(
-        "https://spotify-playlist-flow-server.netlify.app/.netlify/functions/login",
+        // "https://spotify-playlist-flow-server.netlify.app/.netlify/functions/login",
+        "http://localhost:9999/.netlify/functions/login",
         {
           authCode,
         }
@@ -23,9 +24,13 @@ const useAuth = ({ authCode }: Props) => {
         setRefreshToken(res.data.refreshToken);
         setExpiresIn(res.data.expiresIn);
 
+        console.log(res.data);
+
         window.history.pushState({}, "", "/");
       })
-      .catch(() => {
+      .catch((err) => {
+        console.log(err);
+
         window.location.href = "/";
       });
   }, [authCode]);
@@ -35,7 +40,8 @@ const useAuth = ({ authCode }: Props) => {
     const interval = setInterval(() => {
       axios
         .post(
-          "http://spotify-playlist-flow-server.netlify.app/.netlify/functions/refresh",
+          // "http://spotify-playlist-flow-server.netlify.app/.netlify/functions/refresh",
+          "http://localhost:9999/.netlify/functions/refresh",
           {
             refreshToken,
           }

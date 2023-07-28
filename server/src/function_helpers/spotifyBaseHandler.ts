@@ -30,7 +30,6 @@ export abstract class SpotifyBaseHandler {
         await mongoose.connect(process.env.MONGO_URL, {
           useNewUrlParser: true,
           useUnifiedTopology: true,
-          poolSize: 1,
         } as ConnectOptions);
         console.log("MongoDB connection established");
       } catch (error) {

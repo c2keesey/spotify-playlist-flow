@@ -2,6 +2,7 @@ import { Handler, HandlerEvent, HandlerContext } from "@netlify/functions";
 import { SpotifyBaseHandler } from "../function_helpers/spotifyBaseHandler";
 
 class RefreshHandler extends SpotifyBaseHandler {
+
   async handle(event: HandlerEvent, context: HandlerContext) {
     const corsResponse = this.handleCors(event);
     if (corsResponse) return corsResponse;

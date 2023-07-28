@@ -16,7 +16,7 @@ const useGetFlow = () => {
   useEffect(() => {
     if (!currentPlaylist) return;
     axios
-      .get("http://localhost:3001/data/getFlow", {
+      .get("http://localhost:9999/.netlify/functions/getFlow", {
         params: {
           id: currentPlaylist.id,
           owner: userID,

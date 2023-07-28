@@ -55,3 +55,9 @@ check **- fix sync
 - Make header title look cooler and make it a bar
 
 - move all spotifyApi calls into serverless functions
+
+- test refresh token serverless func
+
+**- make database ops atomic
+
+**- Add user authentication for database access
