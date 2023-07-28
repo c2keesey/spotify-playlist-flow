@@ -45,7 +45,7 @@ class CreateUserHandler extends SpotifyBaseHandler {
         headers: this.corsHeaders,
         body: JSON.stringify({
           message: "Error processing request",
-          error: err.message,
+          error: err,
         }),
       };
     }
