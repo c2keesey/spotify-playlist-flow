@@ -47,6 +47,7 @@ const useGetFlow = () => {
         );
       });
     setCurPlaylistUpdated(false);
+    // eslint-disable-next-line
   }, [
     currentPlaylist,
     curPlaylistUpdated,
