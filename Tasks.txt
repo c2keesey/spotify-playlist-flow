@@ -75,3 +75,7 @@ check- error popup when cycle detected
 - Logout that also clears cache
 
 check***- add support for non-user playlists
+
+-clear flows button
+
+**- deselect flows

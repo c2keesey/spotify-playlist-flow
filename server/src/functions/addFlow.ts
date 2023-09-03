@@ -2,6 +2,9 @@ import { Handler, HandlerEvent, HandlerContext } from "@netlify/functions";
 import { SpotifyBaseHandler } from "../function_helpers/spotifyBaseHandler";
 import { PlaylistModel } from "../database.js";
 
+const SUCCESS_STATUS = 200;
+const ERROR_STATUS = 500;
+
 type FlowResult = {
   success: boolean;
   status: number;
@@ -107,6 +110,8 @@ const addSingleFlow = async (
   }
 };
 
+
+
 class AddFlowHandler extends SpotifyBaseHandler {
   async handle(event: HandlerEvent, context: HandlerContext): Promise<any> {
     const corsResponse = this.handleCors(event);
@@ -116,42 +121,70 @@ class AddFlowHandler extends SpotifyBaseHandler {
 
     try {
       const body = JSON.parse(event.body || "{}");
-      const results: FlowResult[] = [];
 
-      for (const playlist of body.targetPlaylists) {
-        const result = await addSingleFlow(
-          body.userID,
-          body.currentPlaylist,
-          playlist,
-          body.isUpstream
-        );
-        results.push(result);
+      const results = await this.processFlows(body);
+
+      if (results.some(result => !result.success)) {
+        return this.buildErrorResponse("Error adding flow");
       }
-
-      for (const result of results) {
-        if (!result.success) {
-          return {
-            statusCode: result.status,
-            headers: this.corsHeaders,
-            body: JSON.stringify({ message: "Error adding flow" }),
-          };
-        }
-      }
-
-      return {
-        statusCode: 200,
-        headers: this.corsHeaders,
-        body: JSON.stringify(results),
-      };
+  
+      return this.buildSuccessResponse(results);
     } catch (err) {
       console.error(err);
-      return {
-        statusCode: 500,
-        headers: this.corsHeaders,
-        body: JSON.stringify({ message: "Error processing request" }),
-      };
+      return this.buildErrorResponse("Error processing request");
     }
   }
+
+  // TODO: add error handling
+  async resetFlows(body: any): Promise<any> {
+    const flowType = body.isUpstream ? "upstream" : "downstream";
+    const filter = { id: body.currentPlaylist, owner: body.userID };
+
+    const update = {
+      $set: { [flowType]: [] }
+    };
+
+    const updateCurrentResult = await PlaylistModel.updateMany(
+      filter,
+      update,
+    );
+
+    return updateCurrentResult;
+  }
+
+  async processFlows(body: any): Promise<FlowResult[]> {
+    const results: FlowResult[] = [];
+    const updateCurrentResult = await this.resetFlows(body);
+    // TODO: Batch update these
+    for (const playlist of body.targetPlaylists) {
+      const result = await addSingleFlow(
+        body.userID,
+        body.currentPlaylist,
+        playlist,
+        body.isUpstream
+      );
+      results.push(result);
+    }
+
+    return results;
+  }
+
+  buildSuccessResponse(results: FlowResult[]) {
+    return {
+      statusCode: SUCCESS_STATUS,
+      headers: this.corsHeaders,
+      body: JSON.stringify(results),
+    };
+  }
+
+  buildErrorResponse(message: string) {
+    return {
+      statusCode: ERROR_STATUS,
+      headers: this.corsHeaders,
+      body: JSON.stringify({ message }),
+    };
+  }
+
 }
 
 const handler: Handler = async (event, context) => {
