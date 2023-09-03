@@ -4,7 +4,7 @@ TODOs:
 
 - Create a color theme 
 
-- Implement searching
+check- Implement searching
 
 - Implement caching
 

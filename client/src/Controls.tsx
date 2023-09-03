@@ -124,7 +124,11 @@ const Controls: React.FC<Props> = ({ createPlaylist, accessToken }) => {
         close={handleCloseAddFlow}
         showAddPlaylist={showAddPlaylist}
       />
-      <Button onClick={handleShowFlowPopupUpstream}>Add Upstream</Button>
+      <Button
+        onClick={handleShowFlowPopupUpstream}
+        disabled={currentPlaylist?.owner.id !== userID}>
+        Add Upstream
+      </Button>
       <Button onClick={handleShowFlowPopupDownstream}>Add Downstream</Button>
       <Button
         className="btn position-relative"

@@ -20,13 +20,17 @@ const FlowPopup: FC<PopupProps> = ({
   handleCheckPlaylist,
 }) => {
   // TODO: set badtarget when detect cycle
-  const { currentPlaylist, userPlaylists, curUpstream, curDownstream } =
+  const { currentPlaylist, userPlaylists, curUpstream, curDownstream, userID } =
     useSpotify();
 
   const [searchQuery, setSearchQuery] = useState("");
 
+  const canCheck = (playlist: SpotifyApi.PlaylistObjectSimplified) => {
+    return isUpstream ? true : playlist.owner.id === userID;
+  }
+
   const filteredPlaylists = userPlaylists?.filter((playlist) => {
-    return playlist.name.toLowerCase().includes(searchQuery.toLowerCase());
+    return playlist.name.toLowerCase().includes(searchQuery.toLowerCase()) && canCheck(playlist);
   });
 
   const handleSearchChange = (e: any) => {
@@ -37,7 +41,7 @@ const FlowPopup: FC<PopupProps> = ({
     closeFlowPopup();
     setShowConfirmation(true);
   };
-
+  
   return (
     <Modal
       className="popup teal-modal"
@@ -80,7 +84,7 @@ const FlowPopup: FC<PopupProps> = ({
                     playlist={playlist}
                     onClick={handleCheckPlaylist}
                     selected={null}
-                    canCheck
+                    canCheck={canCheck(playlist)}
                   />
                 ))
               )}
