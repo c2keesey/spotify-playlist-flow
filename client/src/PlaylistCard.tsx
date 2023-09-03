@@ -11,10 +11,11 @@ interface Props {
   onClick: (playlist: string) => void | null;
   selected: string | null;
   canCheck: boolean;
+  checked: boolean;
 }
 
-const PlaylistCard: FC<Props> = ({ playlist, onClick, selected, canCheck }) => {
-  const [isActive, setIsActive] = useState(false);
+const PlaylistCard: FC<Props> = ({ playlist, onClick, selected, canCheck, checked }) => {
+  const [isActive, setIsActive] = useState(checked);
 
   useEffect(() => {
     if (!canCheck) {

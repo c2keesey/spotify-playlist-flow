@@ -74,4 +74,4 @@ check- error popup when cycle detected
 
 - Logout that also clears cache
 
-***- add support for non-user playlists
+check***- add support for non-user playlists

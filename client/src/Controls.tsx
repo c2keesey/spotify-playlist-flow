@@ -129,7 +129,9 @@ const Controls: React.FC<Props> = ({ createPlaylist, accessToken }) => {
         disabled={currentPlaylist?.owner.id !== userID}>
         Add Upstream
       </Button>
-      <Button onClick={handleShowFlowPopupDownstream}>Add Downstream</Button>
+      <Button onClick={handleShowFlowPopupDownstream}
+        disabled={currentPlaylist === null}>
+          Add Downstream</Button>
       <Button
         className="btn position-relative"
         disabled={waitingForSync}

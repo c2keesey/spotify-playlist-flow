@@ -53,6 +53,7 @@ const YourLibrary: FC<Props> = () => {
                   onClick={setCurrentPlaylistID}
                   selected={currentPlaylistID}
                   canCheck={false}
+                  checked={false}
                 />
               ))
             )}

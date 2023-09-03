@@ -33,6 +33,18 @@ const FlowPopup: FC<PopupProps> = ({
     return playlist.name.toLowerCase().includes(searchQuery.toLowerCase()) && canCheck(playlist);
   });
 
+  const upstreams = filteredPlaylists.filter((playlist) => {
+    return curUpstream.includes(playlist.name);
+  });
+
+  const downstreams = filteredPlaylists.filter((playlist) => {
+    return curDownstream.includes(playlist.name);
+  });
+
+  const others = filteredPlaylists.filter((playlist) => {
+    return !curUpstream.includes(playlist.name) && !curDownstream.includes(playlist.name);
+  });
+
   const handleSearchChange = (e: any) => {
     setSearchQuery(e.target.value);
   }
@@ -41,7 +53,7 @@ const FlowPopup: FC<PopupProps> = ({
     closeFlowPopup();
     setShowConfirmation(true);
   };
-  
+
   return (
     <Modal
       className="popup teal-modal"
@@ -69,22 +81,56 @@ const FlowPopup: FC<PopupProps> = ({
           </Col>
         </Row>
         <Container>
-          <div>Upstream Playlists: {curUpstream.join(" ")}</div>
-          <div>Downstream Playlists: {curDownstream.join(" ")}</div>
-        </Container>
-        <Container className="overflow-auto">
-          <Row xs={1} md={1} className="g-1">
-            <Col className="d-flex flex-column">
+          <div>Upstream Playlists:</div>
+          <Col className="d-flex flex-column">
               {userPlaylists == null ? (
                 <h3>You have no playlists :(</h3>
               ) : (
-                filteredPlaylists.map((playlist) => (
+                upstreams.map((playlist) => (
                   <PlaylistCard
                     key={playlist.id}
                     playlist={playlist}
                     onClick={handleCheckPlaylist}
                     selected={null}
                     canCheck={canCheck(playlist)}
+                    checked={isUpstream}
+                  />
+                ))
+              )}
+            </Col>
+          <div>Downstream Playlists:</div>
+          <Col className="d-flex flex-column">
+              {userPlaylists == null ? (
+                <h3>You have no playlists :(</h3>
+              ) : (
+                downstreams.map((playlist) => (
+                  <PlaylistCard
+                    key={playlist.id}
+                    playlist={playlist}
+                    onClick={handleCheckPlaylist}
+                    selected={null}
+                    canCheck={canCheck(playlist)}
+                    checked={!isUpstream}
+                  />
+                ))
+              )}
+            </Col>
+        </Container>
+        <Container className="overflow-auto">
+          <div>Others:</div>
+          <Row xs={1} md={1} className="g-1">
+            <Col className="d-flex flex-column">
+              {userPlaylists == null ? (
+                <h3>You have no playlists :(</h3>
+              ) : (
+                others.map((playlist) => (
+                  <PlaylistCard
+                    key={playlist.id}
+                    playlist={playlist}
+                    onClick={handleCheckPlaylist}
+                    selected={null}
+                    canCheck={canCheck(playlist)}
+                    checked={false}
                   />
                 ))
               )}
