@@ -1,5 +1,5 @@
-import React from "react";
-import { Modal, Button, Container, Row, Col } from "react-bootstrap";
+import { FC, useState } from "react";
+import { Modal, Button, Container, Row, Col, Form } from "react-bootstrap";
 import { useSpotify } from "./SpotifyContext";
 import PlaylistCard from "./PlaylistCard";
 import "./Popup.css";
@@ -12,7 +12,7 @@ interface PopupProps {
   handleCheckPlaylist: (playlist: string) => void;
 }
 
-const FlowPopup: React.FC<PopupProps> = ({
+const FlowPopup: FC<PopupProps> = ({
   isUpstream,
   showFlowPopup,
   closeFlowPopup,
@@ -22,6 +22,16 @@ const FlowPopup: React.FC<PopupProps> = ({
   // TODO: set badtarget when detect cycle
   const { currentPlaylist, userPlaylists, curUpstream, curDownstream } =
     useSpotify();
+
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const filteredPlaylists = userPlaylists?.filter((playlist) => {
+    return playlist.name.toLowerCase().includes(searchQuery.toLowerCase());
+  });
+
+  const handleSearchChange = (e: any) => {
+    setSearchQuery(e.target.value);
+  }
 
   const handleAddFlowClick = () => {
     closeFlowPopup();
@@ -39,9 +49,24 @@ const FlowPopup: React.FC<PopupProps> = ({
         <Modal.Title>Flow: {currentPlaylist?.name}</Modal.Title>
       </Modal.Header>
       <Modal.Body>
+        <Row>
+          <Col className="col-9">
+          <Form.Control
+            type="search"
+            placeholder="Search"
+            value={searchQuery}
+            onChange={handleSearchChange}
+          />
+          </Col>
+          <Col className="col-3">
+          <Button variant="primary" onClick={handleAddFlowClick}>
+            {isUpstream ? "Add Upstream" : "Add Downstream"}
+          </Button>
+          </Col>
+        </Row>
         <Container>
-          <div>Upstream Playlists: {curUpstream}</div>
-          <div>Downstream Playlists: {curDownstream}</div>
+          <div>Upstream Playlists: {curUpstream.join(" ")}</div>
+          <div>Downstream Playlists: {curDownstream.join(" ")}</div>
         </Container>
         <Container className="overflow-auto">
           <Row xs={1} md={1} className="g-1">
@@ -49,7 +74,7 @@ const FlowPopup: React.FC<PopupProps> = ({
               {userPlaylists == null ? (
                 <h3>You have no playlists :(</h3>
               ) : (
-                userPlaylists.map((playlist) => (
+                filteredPlaylists.map((playlist) => (
                   <PlaylistCard
                     key={playlist.id}
                     playlist={playlist}
@@ -63,11 +88,6 @@ const FlowPopup: React.FC<PopupProps> = ({
           </Row>
         </Container>
       </Modal.Body>
-      <Modal.Footer>
-        <Button variant="primary" onClick={handleAddFlowClick}>
-          {isUpstream ? "Add Upstream" : "Add Downstream"}
-        </Button>
-      </Modal.Footer>
     </Modal>
   );
 };

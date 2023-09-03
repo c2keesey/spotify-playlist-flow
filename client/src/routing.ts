@@ -9,7 +9,7 @@ export const AUTH_URL =
 
 const BASE_URL =
   process.env.NODE_ENV === "development"
-    ? "http://localhost:9999/.netlify/functions"
+    ? "http://localhost:8888/.netlify/functions"
     : "https://spotify-playlist-flow-server.netlify.app/.netlify/functions";
 
 export default BASE_URL;

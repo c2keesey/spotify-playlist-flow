@@ -1,9 +1,10 @@
 /* eslint-disable react/no-array-index-key */
-import { FC } from "react";
+import { FC, useState } from "react";
 import { Container, Row, Col, Form } from "react-bootstrap";
 import PlaylistCard from "./PlaylistCard";
 import "./App.css";
 import { useSpotify } from "./SpotifyContext";
+import TrackCard from './TrackCard';
 
 interface Props {}
 
@@ -16,6 +17,16 @@ const YourLibrary: FC<Props> = () => {
     userPlaylists,
   } = useSpotify();
 
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const filteredPlaylists = userPlaylists?.filter((playlist) => {
+    return playlist.name.toLowerCase().includes(searchQuery.toLowerCase());
+  });
+
+  const handleSearchChange = (e: any) => {
+    setSearchQuery(e.target.value);
+  }
+
   return (
     <div className="mb-3">
       <div className="mb-3">
@@ -25,8 +36,8 @@ const YourLibrary: FC<Props> = () => {
         <Form.Control
           type="search"
           placeholder="Search"
-          value={searchedPlaylist}
-          onChange={(e) => setSearchedPlaylist(e.target.value)}
+          value={searchQuery}
+          onChange={handleSearchChange}
         />
       </Container>
       <Container className="overflow-auto pannel-height">
@@ -35,7 +46,7 @@ const YourLibrary: FC<Props> = () => {
             {userPlaylists == null ? (
               <h3>You have no playlists :&#40;</h3>
             ) : (
-              userPlaylists.map((playlist) => (
+              filteredPlaylists.map((playlist) => (
                 <PlaylistCard
                   key={playlist.id}
                   playlist={playlist}

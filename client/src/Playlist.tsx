@@ -1,7 +1,9 @@
+import { useState } from "react";
 import { Container, Row, Col, Image, Form } from "react-bootstrap";
 import "./Playlist.css";
 import TrackCard from "./TrackCard";
 import { useSpotify } from "./SpotifyContext";
+
 
 const DEFAULT_IMG: string =
   "https://via.placeholder.com/1200x1200/424242/FFFFFF/?text=";
@@ -10,9 +12,20 @@ interface Props {}
 
 const Playlist: React.FC<Props> = () => {
   const { currentPlaylist, currentPlaylistTracks } = useSpotify();
+  const [searchQuery, setSearchQuery] = useState("");
+  
   if (currentPlaylist == null) {
     return <div />;
   }
+
+  const filteredTracks = currentPlaylistTracks?.filter((track) => {
+    return track.track?.name.toLowerCase().includes(searchQuery.toLowerCase());
+  });
+
+  const handleSearchChange = (e: any) => {
+    setSearchQuery(e.target.value);
+  }
+
   return (
     <Container className="pannel-height">
       <Row className="justify-content-start d-flex flex-nowrap">
@@ -34,8 +47,8 @@ const Playlist: React.FC<Props> = () => {
             <Form.Control
               type="search"
               placeholder="Search"
-              // value={searchedPlaylist}
-              // onChange={(e) => setSearchedPlaylist(e.target.value)}
+              value={searchQuery}
+              onChange={handleSearchChange}
             />
           </Container>
         </Col>
@@ -46,7 +59,7 @@ const Playlist: React.FC<Props> = () => {
             {currentPlaylistTracks.length === 0 ? (
               <h3>This playlist is empty :&#40;</h3>
             ) : (
-              currentPlaylistTracks.map((track, index) => (
+              filteredTracks.map((track, index) => (
                 <TrackCard
                   key={track.track?.id.concat(index.toFixed())}
                   track={track}
