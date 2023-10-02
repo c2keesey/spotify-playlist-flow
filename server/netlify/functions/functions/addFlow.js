@@ -62,6 +62,17 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 import { SpotifyBaseHandler } from "../function_helpers/spotifyBaseHandler";
 import { PlaylistModel } from "../database.js";
+var SUCCESS_STATUS = 200;
+var ERROR_STATUS = 500;
+var ProcessingError = /** @class */ (function (_super) {
+    __extends(ProcessingError, _super);
+    function ProcessingError(message) {
+        var _this = _super.call(this, message) || this;
+        _this.name = "ProcessingError";
+        return _this;
+    }
+    return ProcessingError;
+}(Error));
 function hasCycle(playlists, currentPlaylist, targetPlaylist) {
     var visited = new Set();
     function dfs(node) {
@@ -143,62 +154,184 @@ var AddFlowHandler = /** @class */ (function (_super) {
     }
     AddFlowHandler.prototype.handle = function (event, context) {
         return __awaiter(this, void 0, void 0, function () {
-            var corsResponse, body, results, _i, _a, playlist, result, _b, results_1, result, err_2;
-            return __generator(this, function (_c) {
-                switch (_c.label) {
+            var corsResponse, body, results, err_2;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
                     case 0:
                         corsResponse = this.handleCors(event);
                         if (corsResponse)
                             return [2 /*return*/, corsResponse];
                         return [4 /*yield*/, this.initializeMongoDB()];
                     case 1:
-                        _c.sent();
-                        _c.label = 2;
+                        _a.sent();
+                        _a.label = 2;
                     case 2:
-                        _c.trys.push([2, 7, , 8]);
-                        body = JSON.parse(event.body || "{}");
-                        results = [];
-                        _i = 0, _a = body.targetPlaylists;
-                        _c.label = 3;
+                        _a.trys.push([2, 4, , 5]);
+                        body = this.validateAndParseBody(event.body);
+                        return [4 /*yield*/, this.processFlows(body)];
                     case 3:
-                        if (!(_i < _a.length)) return [3 /*break*/, 6];
-                        playlist = _a[_i];
-                        return [4 /*yield*/, addSingleFlow(body.userID, body.currentPlaylist, playlist, body.isUpstream)];
-                    case 4:
-                        result = _c.sent();
-                        results.push(result);
-                        _c.label = 5;
-                    case 5:
-                        _i++;
-                        return [3 /*break*/, 3];
-                    case 6:
-                        for (_b = 0, results_1 = results; _b < results_1.length; _b++) {
-                            result = results_1[_b];
-                            if (!result.success) {
-                                return [2 /*return*/, {
-                                        statusCode: result.status,
-                                        headers: this.corsHeaders,
-                                        body: JSON.stringify({ message: "Error adding flow" }),
-                                    }];
-                            }
+                        results = _a.sent();
+                        if (results.some(function (result) { return !result.success; })) {
+                            return [2 /*return*/, this.buildErrorResponse("Error adding some flows")];
                         }
-                        return [2 /*return*/, {
-                                statusCode: 200,
-                                headers: this.corsHeaders,
-                                body: JSON.stringify(results),
-                            }];
-                    case 7:
-                        err_2 = _c.sent();
-                        console.error(err_2);
-                        return [2 /*return*/, {
-                                statusCode: 500,
-                                headers: this.corsHeaders,
-                                body: JSON.stringify({ message: "Error processing request" }),
-                            }];
-                    case 8: return [2 /*return*/];
+                        if (results.some(function (result) { return result.status === 400; })) {
+                            return [2 /*return*/, this.buildErrorResponse("Error: cycle detected. Some flows were not added")];
+                        }
+                        return [2 /*return*/, this.buildSuccessResponse(results)];
+                    case 4:
+                        err_2 = _a.sent();
+                        return [2 /*return*/, this.buildErrorResponse(err_2.message)];
+                    case 5: return [2 /*return*/];
                 }
             });
         });
+    };
+    // targetPlaylists are playlist IDs
+    AddFlowHandler.prototype.validateAndParseBody = function (body) {
+        // TODO: Add input validation logic
+        return JSON.parse(body || "{}");
+    };
+    // TODO: add error handling
+    AddFlowHandler.prototype.resetFlows = function (body) {
+        return __awaiter(this, void 0, void 0, function () {
+            var flowType, filter, update, error_2;
+            var _a;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0:
+                        flowType = body.isUpstream ? "upstream" : "downstream";
+                        filter = { id: body.currentPlaylist, owner: body.userID };
+                        update = {
+                            $set: (_a = {}, _a[flowType] = [], _a),
+                        };
+                        _b.label = 1;
+                    case 1:
+                        _b.trys.push([1, 3, , 4]);
+                        return [4 /*yield*/, PlaylistModel.updateMany(filter, update)];
+                    case 2:
+                        _b.sent();
+                        return [3 /*break*/, 4];
+                    case 3:
+                        error_2 = _b.sent();
+                        throw new Error("Failed to reset current playlist:");
+                    case 4: return [2 /*return*/];
+                }
+            });
+        });
+    };
+    // Removes current playlist from deselected targets' flows
+    AddFlowHandler.prototype.updateTargets = function (body) {
+        return __awaiter(this, void 0, void 0, function () {
+            var flowType, oldTargets, toUpdate, promises, error_3;
+            var _this = this;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        console.log("Updating targets");
+                        console.log(body);
+                        flowType = !body.isUpstream ? "upstream" : "downstream";
+                        oldTargets = body.isUpstream
+                            ? body.curUpstream.map(function (target) { return target[1]; })
+                            : body.curDownstream.map(function (target) { return target[1]; });
+                        console.log("old targets: ", oldTargets);
+                        if (!oldTargets || oldTargets.length === 0)
+                            return [2 /*return*/];
+                        toUpdate = oldTargets.filter(function (target) { return !body.targetPlaylists.includes(target); });
+                        if (toUpdate.length === 0)
+                            return [2 /*return*/];
+                        console.log(toUpdate);
+                        promises = toUpdate.map(function (target) { return __awaiter(_this, void 0, void 0, function () {
+                            var filter, update, error_4;
+                            var _a;
+                            return __generator(this, function (_b) {
+                                switch (_b.label) {
+                                    case 0:
+                                        filter = { id: target, owner: body.userID };
+                                        update = {
+                                            $pull: (_a = {}, _a[flowType] = body.currentPlaylist, _a),
+                                        };
+                                        _b.label = 1;
+                                    case 1:
+                                        _b.trys.push([1, 3, , 4]);
+                                        return [4 /*yield*/, PlaylistModel.updateMany(filter, update)];
+                                    case 2:
+                                        _b.sent();
+                                        return [3 /*break*/, 4];
+                                    case 3:
+                                        error_4 = _b.sent();
+                                        throw new Error("Failed to update target ".concat(target));
+                                    case 4: return [2 /*return*/];
+                                }
+                            });
+                        }); });
+                        _a.label = 1;
+                    case 1:
+                        _a.trys.push([1, 3, , 4]);
+                        return [4 /*yield*/, Promise.all(promises)];
+                    case 2:
+                        _a.sent();
+                        return [3 /*break*/, 4];
+                    case 3:
+                        error_3 = _a.sent();
+                        throw error_3;
+                    case 4: return [2 /*return*/];
+                }
+            });
+        });
+    };
+    AddFlowHandler.prototype.processFlows = function (body) {
+        return __awaiter(this, void 0, void 0, function () {
+            var results, error_5, _i, _a, playlist, result;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0:
+                        results = [];
+                        _b.label = 1;
+                    case 1:
+                        _b.trys.push([1, 4, , 5]);
+                        return [4 /*yield*/, this.resetFlows(body)];
+                    case 2:
+                        _b.sent();
+                        return [4 /*yield*/, this.updateTargets(body)];
+                    case 3:
+                        _b.sent();
+                        return [3 /*break*/, 5];
+                    case 4:
+                        error_5 = _b.sent();
+                        console.error(error_5);
+                        throw new ProcessingError("Failed to reset flows or update targets");
+                    case 5:
+                        _i = 0, _a = body.targetPlaylists;
+                        _b.label = 6;
+                    case 6:
+                        if (!(_i < _a.length)) return [3 /*break*/, 9];
+                        playlist = _a[_i];
+                        return [4 /*yield*/, addSingleFlow(body.userID, body.currentPlaylist, playlist, body.isUpstream)];
+                    case 7:
+                        result = _b.sent();
+                        results.push(result);
+                        _b.label = 8;
+                    case 8:
+                        _i++;
+                        return [3 /*break*/, 6];
+                    case 9: return [2 /*return*/, results];
+                }
+            });
+        });
+    };
+    AddFlowHandler.prototype.buildSuccessResponse = function (results) {
+        return {
+            statusCode: SUCCESS_STATUS,
+            headers: this.corsHeaders,
+            body: JSON.stringify(results),
+        };
+    };
+    AddFlowHandler.prototype.buildErrorResponse = function (message) {
+        return {
+            statusCode: ERROR_STATUS,
+            headers: this.corsHeaders,
+            body: JSON.stringify({ message: message }),
+        };
     };
     return AddFlowHandler;
 }(SpotifyBaseHandler));

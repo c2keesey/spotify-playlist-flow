@@ -1,4 +1,4 @@
-import { FC, useState } from "react";
+import { FC, useEffect, useState } from "react";
 import { Modal, Button, Container, Row, Col, Form } from "react-bootstrap";
 import { useSpotify } from "./SpotifyContext";
 import PlaylistCard from "./PlaylistCard";
@@ -9,7 +9,8 @@ interface PopupProps {
   showFlowPopup: boolean;
   closeFlowPopup: () => void;
   setShowConfirmation: (show: boolean) => void;
-  handleCheckPlaylist: (playlist: string) => void;
+  targetPlaylists: string[];
+  setTargetPlaylists: (playlists: string[]) => void;
 }
 
 const FlowPopup: FC<PopupProps> = ({
@@ -17,41 +18,70 @@ const FlowPopup: FC<PopupProps> = ({
   showFlowPopup,
   closeFlowPopup,
   setShowConfirmation,
-  handleCheckPlaylist,
+  targetPlaylists,
+  setTargetPlaylists,
 }) => {
   // TODO: set badtarget when detect cycle
   const { currentPlaylist, userPlaylists, curUpstream, curDownstream, userID } =
     useSpotify();
 
   const [searchQuery, setSearchQuery] = useState("");
+  const [toAdd, setToAdd] = useState<string[]>([]);
 
   const canCheck = (playlist: SpotifyApi.PlaylistObjectSimplified) => {
     return isUpstream ? true : playlist.owner.id === userID;
-  }
+  };
 
   const filteredPlaylists = userPlaylists?.filter((playlist) => {
-    return playlist.name.toLowerCase().includes(searchQuery.toLowerCase()) && canCheck(playlist);
+    return (
+      playlist.name.toLowerCase().includes(searchQuery.toLowerCase()) &&
+      canCheck(playlist)
+    );
   });
 
   const upstreams = filteredPlaylists.filter((playlist) => {
-    return curUpstream.includes(playlist.name);
+    return curUpstream.some((upstream) => upstream[0] === playlist.name);
   });
 
   const downstreams = filteredPlaylists.filter((playlist) => {
-    return curDownstream.includes(playlist.name);
+    return curDownstream.some((downstream) => downstream[0] === playlist.name);
   });
 
-  const others = filteredPlaylists.filter((playlist) => {
-    return !curUpstream.includes(playlist.name) && !curDownstream.includes(playlist.name);
+  let others = filteredPlaylists.filter((playlist) => {
+    return (
+      !curUpstream.some((upstream) => upstream[0] === playlist.name) &&
+      !curDownstream.some((downstream) => downstream[0] === playlist.name)
+    );
   });
+
+  others = others.filter((playlist) => playlist.id !== currentPlaylist?.id);
 
   const handleSearchChange = (e: any) => {
     setSearchQuery(e.target.value);
-  }
+  };
 
   const handleAddFlowClick = () => {
+    setTargetPlaylists(toAdd);
     closeFlowPopup();
     setShowConfirmation(true);
+  };
+
+  useEffect(() => {
+    if (showFlowPopup) {
+      setToAdd(
+        isUpstream
+          ? upstreams.map((playlist) => playlist.id)
+          : downstreams.map((playlist) => playlist.id)
+      );
+    }
+  }, [showFlowPopup]);
+
+  const handleClickPlaylist = (playlist: string) => {
+    if (toAdd.includes(playlist)) {
+      setToAdd(toAdd.filter((p) => p !== playlist));
+    } else {
+      setToAdd([...toAdd, playlist]);
+    }
   };
 
   return (
@@ -67,54 +97,54 @@ const FlowPopup: FC<PopupProps> = ({
       <Modal.Body>
         <Row>
           <Col className="col-9">
-          <Form.Control
-            type="search"
-            placeholder="Search"
-            value={searchQuery}
-            onChange={handleSearchChange}
-          />
+            <Form.Control
+              type="search"
+              placeholder="Search"
+              value={searchQuery}
+              onChange={handleSearchChange}
+            />
           </Col>
           <Col className="col-3">
-          <Button variant="primary" onClick={handleAddFlowClick}>
-            {isUpstream ? "Add Upstream" : "Add Downstream"}
-          </Button>
+            <Button variant="primary" onClick={handleAddFlowClick}>
+              {isUpstream ? "Update Upstream" : "Update Downstream"}
+            </Button>
           </Col>
         </Row>
         <Container>
           <div>Upstream Playlists:</div>
           <Col className="d-flex flex-column">
-              {userPlaylists == null ? (
-                <h3>You have no playlists :(</h3>
-              ) : (
-                upstreams.map((playlist) => (
-                  <PlaylistCard
-                    key={playlist.id}
-                    playlist={playlist}
-                    onClick={handleCheckPlaylist}
-                    selected={null}
-                    canCheck={canCheck(playlist)}
-                    checked={isUpstream}
-                  />
-                ))
-              )}
-            </Col>
+            {userPlaylists == null ? (
+              <h3>You have no playlists :(</h3>
+            ) : (
+              upstreams.map((playlist) => (
+                <PlaylistCard
+                  key={playlist.id}
+                  playlist={playlist}
+                  onClick={handleClickPlaylist}
+                  selected={null}
+                  canCheck={canCheck(playlist)}
+                  checked={isUpstream}
+                />
+              ))
+            )}
+          </Col>
           <div>Downstream Playlists:</div>
           <Col className="d-flex flex-column">
-              {userPlaylists == null ? (
-                <h3>You have no playlists :(</h3>
-              ) : (
-                downstreams.map((playlist) => (
-                  <PlaylistCard
-                    key={playlist.id}
-                    playlist={playlist}
-                    onClick={handleCheckPlaylist}
-                    selected={null}
-                    canCheck={canCheck(playlist)}
-                    checked={!isUpstream}
-                  />
-                ))
-              )}
-            </Col>
+            {userPlaylists == null ? (
+              <h3>You have no playlists :(</h3>
+            ) : (
+              downstreams.map((playlist) => (
+                <PlaylistCard
+                  key={playlist.id}
+                  playlist={playlist}
+                  onClick={handleClickPlaylist}
+                  selected={null}
+                  canCheck={canCheck(playlist)}
+                  checked={!isUpstream}
+                />
+              ))
+            )}
+          </Col>
         </Container>
         <Container className="overflow-auto">
           <div>Others:</div>
@@ -127,7 +157,7 @@ const FlowPopup: FC<PopupProps> = ({
                   <PlaylistCard
                     key={playlist.id}
                     playlist={playlist}
-                    onClick={handleCheckPlaylist}
+                    onClick={handleClickPlaylist}
                     selected={null}
                     canCheck={canCheck(playlist)}
                     checked={false}

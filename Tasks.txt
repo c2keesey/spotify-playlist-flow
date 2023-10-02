@@ -78,4 +78,8 @@ check***- add support for non-user playlists
 
 -clear flows button
 
-**- deselect flows
+Check **- deselect flows
+
+** - add better error handling in addFlow. rollback edits if error
+
+** - add validation logic to all backend functions

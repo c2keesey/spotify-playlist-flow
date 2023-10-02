@@ -1,5 +1,5 @@
 import { Container, Button, Modal } from "react-bootstrap";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
 import { useSpotify } from "./SpotifyContext";
 import "./Flow.css";
@@ -19,6 +19,8 @@ interface Props {
 const Controls: React.FC<Props> = ({ createPlaylist, accessToken }) => {
   const {
     currentPlaylist,
+    curUpstream,
+    curDownstream,
     userID,
     setCurPlaylistUpdated,
     setPlaylistsChanged,
@@ -31,16 +33,9 @@ const Controls: React.FC<Props> = ({ createPlaylist, accessToken }) => {
   const [showFlowPopup, setShowFlowPopup] = useState(false);
   const [isUpstream, setIsUpstream] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(false);
-  const [targetPlaylists, setTargetPlaylists] = useState<string[]>([]);
+  const [targetPlaylists, setTargetPlaylists] = useState<string[]>([]); // Playlist IDs
   const [showErrorPopup, setShowErrorPopup] = useState(false);
-
-  const handleCheckPlaylist = (playlist: string) => {
-    if (targetPlaylists.includes(playlist)) {
-      setTargetPlaylists(targetPlaylists.filter((p) => p !== playlist));
-    } else {
-      setTargetPlaylists([...targetPlaylists, playlist]);
-    }
-  };
+  const [errorMessage, setErrorMessage] = useState("");
 
   const handleShowAddPlaylist = () => {
     setShowAddPlaylist(true);
@@ -79,6 +74,8 @@ const Controls: React.FC<Props> = ({ createPlaylist, accessToken }) => {
         currentPlaylist: currentPlaylist?.id,
         targetPlaylists,
         isUpstream,
+        curUpstream,
+        curDownstream,
       })
       .then(() => {
         setCurPlaylistUpdated(true);
@@ -87,10 +84,10 @@ const Controls: React.FC<Props> = ({ createPlaylist, accessToken }) => {
         handleCloseFlowPopup();
       })
       .catch((err) => {
-        if (err.response.status === 400) {
-          setShowConfirmation(false);
-          setShowErrorPopup(true);
-        }
+        setShowConfirmation(false);
+        setShowErrorPopup(true);
+        console.log(err.response);
+        setErrorMessage(err.response.data.message);
       });
   };
 
@@ -126,12 +123,16 @@ const Controls: React.FC<Props> = ({ createPlaylist, accessToken }) => {
       />
       <Button
         onClick={handleShowFlowPopupUpstream}
-        disabled={currentPlaylist?.owner.id !== userID}>
+        disabled={currentPlaylist?.owner.id !== userID}
+      >
         Add Upstream
       </Button>
-      <Button onClick={handleShowFlowPopupDownstream}
-        disabled={currentPlaylist === null}>
-          Add Downstream</Button>
+      <Button
+        onClick={handleShowFlowPopupDownstream}
+        disabled={currentPlaylist === null}
+      >
+        Add Downstream
+      </Button>
       <Button
         className="btn position-relative"
         disabled={waitingForSync}
@@ -147,7 +148,8 @@ const Controls: React.FC<Props> = ({ createPlaylist, accessToken }) => {
         showFlowPopup={showFlowPopup}
         closeFlowPopup={handleCloseFlowPopup}
         setShowConfirmation={setShowConfirmation}
-        handleCheckPlaylist={handleCheckPlaylist}
+        targetPlaylists={targetPlaylists}
+        setTargetPlaylists={setTargetPlaylists}
       />
       <Modal show={showConfirmation} onHide={handleCancelAddFlow}>
         <Modal.Header closeButton>
@@ -170,7 +172,7 @@ const Controls: React.FC<Props> = ({ createPlaylist, accessToken }) => {
         <Modal.Header closeButton>
           <Modal.Title>Error</Modal.Title>
         </Modal.Header>
-        <Modal.Body>Cannot create cycles in flows</Modal.Body>
+        <Modal.Body>{errorMessage}</Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={() => setShowErrorPopup(false)}>
             Close

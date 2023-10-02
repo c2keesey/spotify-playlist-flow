@@ -1,6 +1,7 @@
 import { Handler, HandlerEvent, HandlerContext } from "@netlify/functions";
 import { SpotifyBaseHandler } from "../function_helpers/spotifyBaseHandler";
 import { PlaylistModel } from "../database.js";
+import mongoose from "mongoose";
 
 const SUCCESS_STATUS = 200;
 const ERROR_STATUS = 500;
@@ -9,9 +10,15 @@ type FlowResult = {
   success: boolean;
   status: number;
   message?: string;
-  current?: any; // Define a more specific type if you know the structure
-  target?: any; // Same here
+  current?: any;
+  target?: any;
 };
+class ProcessingError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "ProcessingError";
+  }
+}
 
 function hasCycle(
   playlists: Record<string, string[]>,
@@ -110,51 +117,103 @@ const addSingleFlow = async (
   }
 };
 
-
-
 class AddFlowHandler extends SpotifyBaseHandler {
   async handle(event: HandlerEvent, context: HandlerContext): Promise<any> {
     const corsResponse = this.handleCors(event);
     if (corsResponse) return corsResponse;
 
     await this.initializeMongoDB();
-
     try {
-      const body = JSON.parse(event.body || "{}");
+      const body = this.validateAndParseBody(event.body);
 
       const results = await this.processFlows(body);
 
-      if (results.some(result => !result.success)) {
-        return this.buildErrorResponse("Error adding flow");
+      if (results.some((result) => !result.success)) {
+        return this.buildErrorResponse("Error adding some flows");
       }
-  
+
+      if (results.some((result) => result.status === 400)) {
+        return this.buildErrorResponse(
+          "Error: cycle detected. Some flows were not added"
+        );
+      }
+
       return this.buildSuccessResponse(results);
     } catch (err) {
-      console.error(err);
-      return this.buildErrorResponse("Error processing request");
+      return this.buildErrorResponse(err.message);
     }
   }
 
+  // targetPlaylists are playlist IDs
+  validateAndParseBody(body: string | null): any {
+    // TODO: Add input validation logic
+    return JSON.parse(body || "{}");
+  }
+
   // TODO: add error handling
-  async resetFlows(body: any): Promise<any> {
+  async resetFlows(body: any): Promise<void> {
+    // Update current
     const flowType = body.isUpstream ? "upstream" : "downstream";
     const filter = { id: body.currentPlaylist, owner: body.userID };
 
     const update = {
-      $set: { [flowType]: [] }
+      $set: { [flowType]: [] },
     };
+    try {
+      await PlaylistModel.updateMany(filter, update);
+    } catch (error) {
+      throw new Error(`Failed to reset current playlist:`);
+    }
+  }
 
-    const updateCurrentResult = await PlaylistModel.updateMany(
-      filter,
-      update,
+  // Removes current playlist from deselected targets' flows
+  async updateTargets(body: any): Promise<void> {
+    console.log("Updating targets");
+    console.log(body);
+    const flowType = !body.isUpstream ? "upstream" : "downstream";
+    const oldTargets: string[] = body.isUpstream
+      ? body.curUpstream.map((target: [string, string]) => target[1])
+      : body.curDownstream.map((target: [string, string]) => target[1]);
+    console.log("old targets: ", oldTargets);
+    if (!oldTargets || oldTargets.length === 0) return;
+
+    const toUpdate: string[] = oldTargets.filter(
+      (target: string) => !body.targetPlaylists.includes(target)
     );
 
-    return updateCurrentResult;
+    if (toUpdate.length === 0) return;
+
+    console.log(toUpdate);
+    const promises = toUpdate.map(async (target: string) => {
+      const filter = { id: target, owner: body.userID };
+      const update = {
+        $pull: { [flowType]: body.currentPlaylist },
+      };
+
+      try {
+        await PlaylistModel.updateMany(filter, update);
+      } catch (error) {
+        throw new Error(`Failed to update target ${target}`);
+      }
+    });
+
+    try {
+      await Promise.all(promises);
+    } catch (error) {
+      throw error;
+    }
   }
 
   async processFlows(body: any): Promise<FlowResult[]> {
     const results: FlowResult[] = [];
-    const updateCurrentResult = await this.resetFlows(body);
+
+    try {
+      await this.resetFlows(body);
+      await this.updateTargets(body);
+    } catch (error) {
+      console.error(error);
+      throw new ProcessingError("Failed to reset flows or update targets");
+    }
     // TODO: Batch update these
     for (const playlist of body.targetPlaylists) {
       const result = await addSingleFlow(
@@ -184,7 +243,6 @@ class AddFlowHandler extends SpotifyBaseHandler {
       body: JSON.stringify({ message }),
     };
   }
-
 }
 
 const handler: Handler = async (event, context) => {

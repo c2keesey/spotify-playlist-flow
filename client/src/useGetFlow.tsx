@@ -30,9 +30,10 @@ const useGetFlow = () => {
               userPlaylists.find((playlist) => playlist.id === id)
             )
             .filter(Boolean)
-            .map(
-              (playlist: SpotifyApi.PlaylistObjectSimplified) => playlist.name
-            )
+            .map((playlist: SpotifyApi.PlaylistObjectSimplified) => [
+              playlist.name,
+              playlist.id,
+            ])
         );
 
         setCurDownstream(
@@ -41,9 +42,10 @@ const useGetFlow = () => {
               userPlaylists.find((playlist) => playlist.id === id)
             )
             .filter(Boolean)
-            .map(
-              (playlist: SpotifyApi.PlaylistObjectSimplified) => playlist.name
-            )
+            .map((playlist: SpotifyApi.PlaylistObjectSimplified) => [
+              playlist.name,
+              playlist.id,
+            ])
         );
       });
     setCurPlaylistUpdated(false);

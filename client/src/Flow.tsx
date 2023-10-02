@@ -12,7 +12,7 @@ const Flow: React.FC<Props> = () => {
       <div className="container-fluid" style={{ height: "calc(100% - 3rem)" }}>
         <h3>Upstream:</h3>
         <ul>
-          {curUpstream.map((parent: string) => (
+          {curUpstream.map(([parent, _]: [string, string]) => (
             <li className="fam-list" key={parent}>
               {parent}
             </li>
@@ -20,7 +20,7 @@ const Flow: React.FC<Props> = () => {
         </ul>
         <h3>Downstream:</h3>
         <ul>
-          {curDownstream.map((child: string) => (
+          {curDownstream.map(([child, _]: [string, string]) => (
             <li className="fam-list" key={child}>
               {child}
             </li>
