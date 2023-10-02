@@ -9,7 +9,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "devStart": "nodemon",
     "start": "nodemon",
-    "buildServerless": "tsc --watch --project tsconfig.serverless.json",
+    "buildServerless": "tsc --project tsconfig.serverless.json",
+    "buildDevServerless": "tsc --watch --project tsconfig.serverless.json",
     "buildServerful": "tsc --project --watch tsconfig.serverful.json",
     "buildWatch": "tsc --watch"
   },
