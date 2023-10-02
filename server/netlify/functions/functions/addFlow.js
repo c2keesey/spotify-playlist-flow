@@ -180,7 +180,7 @@ var AddFlowHandler = /** @class */ (function (_super) {
                         return [2 /*return*/, this.buildSuccessResponse(results)];
                     case 4:
                         err_2 = _a.sent();
-                        return [2 /*return*/, this.buildErrorResponse(err_2.message)];
+                        return [2 /*return*/, this.buildErrorResponse(JSON.stringify({ err: err_2 }))];
                     case 5: return [2 /*return*/];
                 }
             });

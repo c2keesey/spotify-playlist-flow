@@ -140,7 +140,7 @@ class AddFlowHandler extends SpotifyBaseHandler {
 
       return this.buildSuccessResponse(results);
     } catch (err) {
-      return this.buildErrorResponse(err.message);
+      return this.buildErrorResponse(JSON.stringify({ err }));
     }
   }
 
